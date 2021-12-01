@@ -5,15 +5,19 @@ import warnings
 
 
 
-def euclidian_dst(a, b):
+def dst_bearing(a, b, bearing=False):
     '''
-    Вычисляет евклидово расстояние между двумя точками.
+    Calculates distance and bearing between points.
     params a, b: sequence with shape (1, 2)
+    param bearing: bool. If True, bearing will be returned
     '''
     if not (type(a) == type(b) and np.array(a).shape == np.array(b).shape and np.array(a).shape == (2,)):
         raise ValueError("a, b has to be sequences with shape (1, 2)")
-    
-    return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
+    dx = a[0] - b[0]
+    dy = a[1] - b[1]
+    dst = np.sqrt(dx**2 + dx**2)
+    ang = np.arctan2(dy, dx)
+    return dst, ang
 
 
 
