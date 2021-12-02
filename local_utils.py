@@ -75,39 +75,15 @@ def rl_inverse(key):
 
 
 
-def draw(curves, ax1=None, ax2=None):
-        '''
-        аналог ShiftedLogCurve.draw(). Не аналогична LimitedSLC.draw()
-        Требует массива объектов.
+def draw(curves, ax1=None, ax2=None, polar=True):
+    """Plotting set of curves"""
+    fig = plt.figure(1,(15,15)) if ax1 is None else None
+    ax1 = fig.add_subplot(221,polar=True) if ax1 is None else ax1
+    ax2 = fig.add_subplot(222,polar=False) if ax2 is None else ax2
+    
+    for curve in curves:
 
-        В текущем виде бесполезна после появления batch_draw
-
-        curves: массив кривых, инициализированных при run=True
-        '''
-        if ax1 is None and ax2 is None:
-            fig = plt.figure(1,(15,15))
-            ax1 = fig.add_subplot(221,polar=True) # раскомментировать эту строку и "222" для отображения в полярных координатах
-            ax2 = fig.add_subplot(
-            222,
-            polar=False)
-        
-        for curve in curves:
-
-            xr,yr = curve.proj_rect()["right_xy"]
-            xl,yl = curve.proj_rect()["left_xy"]
-
-            try:
-                ax1.plot(curve.th, curve.r, "-c")
-                ax1.plot(-curve.th, curve.r, "-m")
-            except AttributeError:
-                pass
-            try:
-                ax2.plot(xr,yr, "-c")
-                ax2.plot(xl,yl, "-m")
-                ax2.plot(curve.leaf[0], curve.leaf[1], "sg")
-                ax2.set_aspect(1)
-            except AttributeError:
-                pass
+        curve.plot(ax1=ax1, ax2=ax2, polar=polar)
 
 
 
