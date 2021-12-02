@@ -3,6 +3,46 @@ from matplotlib import pyplot as plt
 from shapely.geometry import LineString
 import warnings
 
+def polar_logspiral(a, b, th):
+    '''
+    ОПРЕДЕЛЕНИЕ ЗНАЧЕНИЙ РАДИУСА ДЛЯ ОБЛАСТИ ОПРЕДЕЛЕНИЙ (углов)
+    Экспонента сдвинута на -1.
+    Таким образом область значений сдвигается на -self.a относительно лог. спирали по определению
+    Это необходио, чтобы область значений начиналась от 0
+    th: np.array область определения (массив углов для котрых требуется рассчитать радиус)
+    '''
+    return a*(np.exp(b*th)-1)
+
+
+def rect_logspiral(r, th, ang, tp):
+    '''
+    bestway to call: crds[f'{tp}_xy'] = rect_logspiral(r, th, ang, tp)
+    ПЕРЕВОД В ПРЯМОУГОЛЬНЫЕ КООРДИНАТЫ
+    Функция переводит кривую в полярных координатах (массив R(th) для массива th) в прямоугольные (массив x и массив y)
+    Результат: редактирование атрибута self.crds
+
+    input: обязательных аргументов нет
+    R: массив R(th). Если None, то используется self.R
+
+    return: self.crds (на всякий случай)
+    '''
+    sign = 1 if tp == 'right' else -1
+    thc = sign*th + ang + np.pi
+    x = r*np.cos(thc)
+    y = r*np.sin(thc)
+    return [x, y]
+
+
+def eval_a_logspiral(dst, b):
+    '''
+    РАСЧЁТ self.a
+    Рассчитывает параметр a, который нужно использовать, чтобы "вписать" кривую с заданным b
+    между корнем и листом
+    Экспонента сдвинута на -1
+    
+    Входных параметров и return не предусмотрено
+    '''
+    return dst/(np.exp(b*np.pi)-1)
 
 
 def dst_bearing(a, b, bearing=False):
@@ -13,9 +53,9 @@ def dst_bearing(a, b, bearing=False):
     '''
     if not (type(a) == type(b) and np.array(a).shape == np.array(b).shape and np.array(a).shape == (2,)):
         raise ValueError("a, b has to be sequences with shape (1, 2)")
-    dx = a[0] - b[0]
-    dy = a[1] - b[1]
-    dst = np.sqrt(dx**2 + dx**2)
+    dx = b[0] - a[0]
+    dy = b[1] - a[1]
+    dst = np.sqrt(dx**2 + dy**2)
     ang = np.arctan2(dy, dx)
     return dst, ang
 
