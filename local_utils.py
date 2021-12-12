@@ -51,7 +51,7 @@ def dst_bearing(a, b, bearing=False):
     params a, b: sequence with shape (1, 2)
     param bearing: bool. If True, bearing will be returned
     '''
-    if not (type(a) == type(b) and np.array(a).shape == np.array(b).shape and np.array(a).shape == (2,)):
+    if not (np.array(a).shape == np.array(b).shape and np.array(a).shape == (2,)):
         raise ValueError("a, b has to be sequences with shape (1, 2)")
     dx = b[0] - a[0]
     dy = b[1] - a[1]
@@ -84,6 +84,17 @@ def draw(curves, ax1=None, ax2=None, polar=True):
     for curve in curves:
 
         curve.plot(ax1=ax1, ax2=ax2, polar=polar)
+
+
+def tdraw(curves, ax1=None, ax2=None, polar=True):
+    """Plotting set of curves"""
+    fig = plt.figure(1,(15,15)) if ax1 is None else None
+    ax1 = fig.add_subplot(221,polar=True) if ax1 is None else ax1
+    ax2 = fig.add_subplot(222,polar=False) if ax2 is None else ax2
+    
+    for curve in curves:
+
+        curve.tplot(ax1=ax1, ax2=ax2, polar=polar)
 
 
 
