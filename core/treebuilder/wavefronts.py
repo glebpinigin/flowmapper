@@ -1,8 +1,4 @@
-class AbstractSearchTree():
-    
-    def __init__(self):
-        """Red-Black binary search tree"""
-        pass
+from .abtree import AbstractSearchTree
 
 
 class W():
