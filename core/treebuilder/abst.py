@@ -1,5 +1,21 @@
 class AbstractBSTData:
-    pass
+    self.unpacked = Null
+    
+    
+    def unpack(self):
+        return self.unpacked
+    
+    def __gt__(self, other):
+        return self.unpack() > self.other()
+        
+    def __lt__(self, other):
+        return self.unpack() < self.other()
+    
+    def __ge__(self, other):
+        return self.unpack() >= self.other()
+    
+    def __le__(self, other):
+        return self.unpack() <= self.other()
 
 
 class SearchTreeNode:
