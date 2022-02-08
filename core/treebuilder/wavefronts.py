@@ -1,10 +1,16 @@
 from .abtree import AbstractSearchTree
 
-
-class W():
+class WData(AbstractBSTData):
     
-    def __init__(self):
-        """Wavefront without presence of obstackles"""        pass
+    def __init__(self, event):
+        self.event = event
+    
+    def unpack(self):
+        return self.event.get_polar()["ang"]
+
+
+class W(AbstractSearchTree):
+    pass
 
 
 class Wo():

@@ -1,21 +1,19 @@
-class AbstractBSTData:
-    self.unpacked = Null
-    
+class AbstractBSTData():
     
     def unpack(self):
-        return self.unpacked
+        return None
     
     def __gt__(self, other):
-        return self.unpack() > self.other()
+        return self.unpack() > other
         
     def __lt__(self, other):
-        return self.unpack() < self.other()
+        return self.unpack() < other
     
     def __ge__(self, other):
-        return self.unpack() >= self.other()
+        return self.unpack() >= other
     
     def __le__(self, other):
-        return self.unpack() <= self.other()
+        return self.unpack() <= other
 
 
 class SearchTreeNode:
@@ -39,7 +37,7 @@ class AbstractSearchTree:
         self.root = self.nil
     
     
-    def insert(self, val):
+    def insert(self, val, rt=False):
         new_node = SearchTreeNode(val)
         new_node.parent = None
         new_node.left = self.nil
@@ -55,7 +53,7 @@ class AbstractSearchTree:
             elif new_node.val > current.val:
                 current = current.right
             else:
-                raise Warning(“equal data in nodes”)
+                raise Warning("equal data in nodes")
         
         new_node.parent = parent
         if parent == None:
@@ -66,6 +64,8 @@ class AbstractSearchTree:
             parent.right = new_node
         
         self.fix_insert(new_node)
+            if rt:
+                return new_node
     
     
     def rotate_right(self, node):
