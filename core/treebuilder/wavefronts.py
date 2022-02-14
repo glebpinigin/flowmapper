@@ -7,6 +7,9 @@ class WData(AbstractBSTData):
     
     def unpack(self):
         return self.event.get_polar()["ang"]
+    
+    def get_curve(self):
+        return self.event.R
 
 
 class W(AbstractSearchTree):

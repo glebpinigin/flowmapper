@@ -1,4 +1,6 @@
 class AbstractBSTData():
+    def set_node(self, node):
+        self.node = node
     
     def unpack(self):
         return None
@@ -23,6 +25,7 @@ class SearchTreeNode:
         self.parent = None
         if isinstance(val, AbstractBSTData):
             self.val = val
+            val.set_node(self)
         else:
             raise ValueError("data must be enharited from AbstractBSTData")
         self.left = None
