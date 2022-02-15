@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from shapely.geometry import LineString
 
-from .local_utils import dst_bearing, rl_inverse, draw, tdraw, intersect, rad_magic, rad_back_magic, polar_logspiral, rect_logspiral, eval_a_logspiral
+from local_utils import dst_bearing, rl_inverse, draw, tdraw, intersect_curves, rad_magic, rad_back_magic, polar_logspiral, rect_logspiral, eval_a_logspiral
 
 
 
@@ -237,7 +237,7 @@ class FlowTreeBuilder():
                 interm.remove(curve)
                 for c in interm:
                     # NOT HANDLES NONE OUTPUT FROM INTERSECT
-                    intersections.append(intersect(curve, c, plotting=True, ax=ax2))
+                    intersections.append(intersect_curves(curve, c, plotting=True, ax=ax2))
             try:
                 del c, interm
             except UnboundLocalError:
@@ -262,7 +262,7 @@ class FlowTreeBuilder():
                 params_r = list(filter(lambda x: "right" in list(x.keys()), (params1, params2)))[0]
 
                 terminal_from_joinpoint = NodeRegion(root=self.root, 
-                leaf=tuple(lowerlimit_xy.tolist()), 
+                leaf=lowerlimit_xy, 
                 params_l=params_l['left'], 
                 params_r=params_r['right'],
                 fake_uplim=fake_uplim)
@@ -292,6 +292,7 @@ if __name__ == "__main__":
     # some tests
     leaves = [ (17, -4), (20, 7), (-10, 15), (-5, 20), (-8, -20), (20, 0), (5, 10), (22, 4), (-30, 5), (-35, -6)]
     expl = FlowTreeBuilder(b=1.9, leaves=leaves, vbs=False)
+    plt.show()
 
 
 
