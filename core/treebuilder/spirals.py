@@ -74,6 +74,7 @@ class NodeRegion():
         # Расчет
         sign = 1 if tp == 'right' else -1
 
+        # upperlimit is a final point for drowing from root to leaf
         if upperlimit_xy is not None:
             uplt_th_ang = np.arctan2(upperlimit_xy[1]-self.root[1], upperlimit_xy[0]-self.root[0])
 
@@ -85,6 +86,7 @@ class NodeRegion():
         else:
             upperlimit_th = thmax
 
+        # lowerlimit is an intial point for drawing from root to leaf
         if lowerlimit_xy is not None:
             lwlt_th_ang = np.arctan2(lowerlimit_xy[1]-self.root[1], lowerlimit_xy[0]-self.root[0])
 
@@ -113,7 +115,7 @@ class NodeRegion():
             th = np.linspace(lowerlimit_th, upperlimit_th, self.s)
             a = self.params[tp]['a']
             b = self.params[tp]['b']
-            r = polar_logspiral(a, b, self.th)
+            r = polar_logspiral(a, b, self.th) # check if self is needed with th
             params = {
                 tp: {"a": a, "b": b, "r": r}
             }
@@ -246,10 +248,12 @@ class FlowTreeBuilder():
             # filtering intersections
             for join_position in filter(lambda x: x["dst"] > C, intersections):
                 print(join_position['dst'])
+                # unpacking intersection
                 lowerlimit_xy, tp1 = join_position["position_type"]
                 tp2 = rl_inverse(tp1)
                 curve1, curve2 = join_position["curves"]
                 
+                # calculating parameters for creating new NodeRegion for SteinerNode
                 params1, uplim_th_1 = curve1.crop(tp=tp1, upperlimit_xy=lowerlimit_xy)
                 params2, uplim_th_2 = curve2.crop(tp=tp2, upperlimit_xy=lowerlimit_xy)
 
@@ -258,15 +262,18 @@ class FlowTreeBuilder():
                     tp2: uplim_th_2
                     }
 
+                # define which of curves is left and which is right
                 params_l = list(filter(lambda x: "left" in list(x.keys()), (params1, params2)))[0]
                 params_r = list(filter(lambda x: "right" in list(x.keys()), (params1, params2)))[0]
 
+                # creating NodeRegion for SteinerNode
                 terminal_from_joinpoint = NodeRegion(root=self.root, 
                 leaf=lowerlimit_xy, 
                 params_l=params_l['left'], 
                 params_r=params_r['right'],
                 fake_uplim=fake_uplim)
 
+                # cropping curves
                 curve1.crop(tp=tp1, lowerlimit_xy=lowerlimit_xy, inplace=True)
                 curve2.crop(tp=tp2, lowerlimit_xy=lowerlimit_xy, inplace=True)
                 
