@@ -1,5 +1,5 @@
 from .abst import AbstractSearchTree, AbstractBSTData
-from .event import TerminalPoint
+from .events import TerminalEvent
 
 
 class GeneralQueueData(AbstractBSTData):
@@ -17,8 +17,9 @@ class GeneralQueueData(AbstractBSTData):
 class GeneralQueueHandler(AbstractSearchTree):
     
     def __init__(self, init_nodes): # assign NodeRegions for leaves as terminal events
+        super().__init__()
         for node in init_nodes:
-            tp = TerminalPoint(node)
+            tp = TerminalEvent(node)
             val = GeneralQueueData(tp)
             self.insert(val)
             

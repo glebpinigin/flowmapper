@@ -1,15 +1,27 @@
-from .abtree import AbstractSearchTree
+from .events import JoinPointEvent
+from .spiraltree import SpiralTreeNode
+from .abst import AbstractSearchTree, AbstractBSTData
 
 class WData(AbstractBSTData):
     
-    def __init__(self, event):
-        self.event = event
+    def __init__(self, inst):
+        self.inst = inst
+        self._jp_events = []
     
     def unpack(self):
-        return self.event.get_polar()["ang"]
+        return self.inst.get_polar()["ang"]
     
     def get_curve(self):
-        return self.event.R
+        return self.inst.R
+    
+    def track_jpEvent(self, jp_event):
+        self._jp_events.append(jp_event)
+    
+    def untrack_jpEvent(self, jp_event):
+        if not jp_event in self._jp_events:
+            raise Warning("This JPEvent is not being tracked")
+        else:
+            self._jp_events.remove(jp_event)
 
 
 class W(AbstractSearchTree):

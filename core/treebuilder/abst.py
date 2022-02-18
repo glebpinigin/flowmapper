@@ -43,7 +43,7 @@ class AbstractSearchTree:
         self.root = self.nil
     
     
-    def insert(self, val, rt=False):
+    def insert(self, val):
         new_node = SearchTreeNode(val)
         new_node.parent = None
         new_node.left = self.nil
@@ -56,7 +56,7 @@ class AbstractSearchTree:
             parent = current
             if new_node.val < current.val:
                 current = current.left
-            elif new_node.val > current.val:
+            elif new_node.val >= current.val:
                 current = current.right
             else:
                 raise Warning("equal data in nodes")
@@ -70,8 +70,7 @@ class AbstractSearchTree:
             parent.right = new_node
         
         self.fix_insert(new_node)
-        if rt:
-            return new_node
+        return new_node
     
     def fix_insert(self, new_node):
         while new_node != self.root and new_node.parent.red:
@@ -144,6 +143,7 @@ class AbstractSearchTree:
 
 if __name__ == "__main__":
     import random
+    import numpy as np
 
     def print_tree(node, lines, level=0):
         if node.val.unpack() is not None:
@@ -159,9 +159,13 @@ if __name__ == "__main__":
         
         def unpack(self):
             return self.data
+        
+        def __repr__(self):
+            return f"{self.data}"
 
     tree = AbstractSearchTree()
     numbers = random.sample(range(360), 100)
+    numbers = np.random.randint(14, size=(15))
     points = []
     for n in numbers:
         point = Point(n)
@@ -171,3 +175,4 @@ if __name__ == "__main__":
     lines = []
     print_tree(tree.root, lines)
     print('\n'.join(lines))
+    print (points)
