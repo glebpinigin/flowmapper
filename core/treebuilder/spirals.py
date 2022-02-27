@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from shapely.geometry import LineString
 
-from local_utils import dst_bearing, rl_inverse, draw, tdraw, intersect_curves, rad_magic, rad_back_magic, polar_logspiral, rect_logspiral, eval_a_logspiral
+from .local_utils import dst_bearing, rl_inverse, draw, tdraw, intersect_curves, rad_magic, rad_back_magic, polar_logspiral, rect_logspiral, eval_a_logspiral
 
 
 

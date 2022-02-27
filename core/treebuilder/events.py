@@ -3,16 +3,31 @@ from .wavefronts import W, WData
 from .local_utils import intersect_curves, rl_inverse
 from .spirals import NodeRegion
 
+class Intersection:
+
+    def __init__(self, *args):
+        """
+        args: exactly 2 wavefront nodes
+        """
+        self._nds = (args[0], args[1])
+        self._intersection_pars = intersect_curves(self._nds[0].val.get_curve(), self._nds[1].val.get_curve())
+
+    def get_nds(self):
+        return self._nds
+    
+    def get_intersection_pars(self):
+        return self._intersection_pars
+
 class TerminalEvent:
     
-    def __init__(self, node):
-        self.R = node # spiral region assigned with terminal event
+    def __init__(self, R):
+        self.R = R # spiral region assigned with terminal event
     
     def __call__(self, w: W, T: SpiralTree):
         
-        sptr_node = T.insertLeaf(self.R)# inserting sptr_node to T
-        # inserting sptr_node to W
-        val = WData(sptr_node) # inserting terminal event into W
+        T.insertLeaf(self.R)
+
+        val = WData(self.R)
         in_w = w.insert(val)
         # find left and right potential neighbours in W
         nbhood = w.get_nbhood(in_w)
@@ -21,30 +36,35 @@ class TerminalEvent:
         
         # find intersections with neibourhood
         for nb in nbhood:
-            intersection = intersect_curves(in_w.get_curve(), nb.get_curve())
-            # creating Spiral Region from intersection
+            intersection = Intersection(in_w, nb)
+            # creating JPEvent from intersection
             new_jp_event = JoinPointEvent(intersection)
 
-            # add created R to W
-            new_node = w.insert(new_jp_event, rt=True)
+            # add created JPEvent to W
+            new_node = w.insert(new_jp_event)
             new_jp_event.set_nodeW(new_node)
-            sptr_node.track_jpEvent(new_jp_event)
+            new_jp_event.track_
+            in_w.track_jpEvent(new_jp_event)
             nb.track_jpEvent(new_jp_event)
 
 
     def get_polar(self):
         return {"dst": self.R.dst, # angle and dst from NodeRegion
                 "ang": self.R.ang}
+    
+    def get_curve(self):
+        return self.R
 
 
 class JoinPointEvent:
     
-    def __init__(self, intersection):
+    def __init__(self, intersection: Intersection):
         self.intersection = intersection
+        intersection_pars = intersection.get_intersection_pars()
         # unpacking intersection
-        lowerlimit_xy, tp1 = intersection["position_type"]
+        lowerlimit_xy, tp1 = intersection_pars["position_type"]
         tp2 = rl_inverse(tp1)
-        curve1, curve2 = intersection["curves"]
+        curve1, curve2 = intersection_pars["curves"]
         # calculating parameters for creating new NodeRegion for SteinerNode
         params1, uplim_th_1 = curve1.crop(tp=tp1, upperlimit_xy=lowerlimit_xy)
         params2, uplim_th_2 = curve2.crop(tp=tp2, upperlimit_xy=lowerlimit_xy)
@@ -65,19 +85,26 @@ class JoinPointEvent:
         self.R = steiner_region
     
     def __call__(self, w, T: SpiralTree):
-        # обрезать кривые узлов
-        lowerlimit_xy, tp1 = self.intersection["position_type"]
+        # cut node curves
+        lowerlimit_xy, tp1 = self.intersection.get_intersection_pars()["position_type"]
         tp2 = rl_inverse(tp1)
-        curve1, curve2 = self.intersection["curves"]
+        curve1, curve2 = self.intersection.get_intersection_pars()["curves"]
         curve1.crop(tp=tp1, lowerlimit_xy=lowerlimit_xy, inplace=True)
         curve2.crop(tp=tp2, lowerlimit_xy=lowerlimit_xy, inplace=True)
-        # вызвать T.insertSteinerNode()
-        T.insertSteinerNode()
+        
+        T.insertSteinerNode(self.R)
         # удалить u и v из W
         # добавить себя в W
+        
         pass
     
     def get_polar(self):
         return {
-                "dst": self.intersection["dst"],
-                "ang": self.intersection["ang"]}
+                "dst": self.intersection.get_intersection_pars()["dst"],
+                "ang": self.intersection.get_intersection_pars()["ang"]}
+    
+    def get_curve(self):
+        return self.R
+
+    def set_nodeW(self, nodeW):
+        pass

@@ -4,15 +4,15 @@ from .abst import AbstractSearchTree, AbstractBSTData
 
 class WData(AbstractBSTData):
     
-    def __init__(self, inst):
-        self.inst = inst
+    def __init__(self, R):
+        self.R = R
         self._jp_events = []
     
     def unpack(self):
-        return self.inst.get_polar()["ang"]
+        return self.R.ang
     
     def get_curve(self):
-        return self.inst.R
+        return self.R
     
     def track_jpEvent(self, jp_event):
         self._jp_events.append(jp_event)
