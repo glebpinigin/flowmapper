@@ -2,6 +2,7 @@ from .spiraltree import SpiralTree
 from .wavefronts import W, WData
 from .local_utils import intersect_curves, rl_inverse
 from .spirals import NodeRegion
+from .handlers import GeneralQueueData, GeneralQueueHandler
 
 class Intersection:
 
@@ -23,7 +24,7 @@ class TerminalEvent:
     def __init__(self, R):
         self.R = R # spiral region assigned with terminal event
     
-    def __call__(self, w: W, T: SpiralTree):
+    def __call__(self, w: W, T: SpiralTree, Q):
         
         T.insertLeaf(self.R)
 
@@ -43,9 +44,10 @@ class TerminalEvent:
             # add created JPEvent to W
             new_node = w.insert(new_jp_event)
             new_jp_event.set_nodeW(new_node)
-            new_jp_event.track_
+            # wnode will have to delete jpEvents from w
             in_w.track_jpEvent(new_jp_event)
             nb.track_jpEvent(new_jp_event)
+            Q.insert(GeneralQueueData(new_jp_event))
 
 
     def get_polar(self):
@@ -84,7 +86,7 @@ class JoinPointEvent:
 
         self.R = steiner_region
     
-    def __call__(self, w, T: SpiralTree):
+    def __call__(self, w, T: SpiralTree, Q):
         # cut node curves
         lowerlimit_xy, tp1 = self.intersection.get_intersection_pars()["position_type"]
         tp2 = rl_inverse(tp1)
@@ -93,10 +95,14 @@ class JoinPointEvent:
         curve2.crop(tp=tp2, lowerlimit_xy=lowerlimit_xy, inplace=True)
         
         T.insertSteinerNode(self.R)
-        # удалить u и v из W
-        # добавить себя в W
         
-        pass
+        for nd in self.intersection.get_nds():
+            w.delete(nd)
+        
+        # add TerminalEvent to queue
+        tp = TerminalEvent(self.R)
+        val = GeneralQueueData(tp)
+        Q.insert(val)
     
     def get_polar(self):
         return {

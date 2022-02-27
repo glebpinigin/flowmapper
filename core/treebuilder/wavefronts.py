@@ -22,6 +22,8 @@ class WData(AbstractBSTData):
             raise Warning("This JPEvent is not being tracked")
         else:
             self._jp_events.remove(jp_event)
+    
+    # перегрузить деструктор!!!!!!
 
 
 class W(AbstractSearchTree):

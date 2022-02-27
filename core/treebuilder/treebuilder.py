@@ -12,7 +12,7 @@ def buildTree(root=(0, 0), leaves=None, b=1.9):
     w = W()
     T = SpiralTree()
     for event in queue:
-        event(w, T)
+        event(w, T, queue)
         queue.remove(event)
         del event
     return T
