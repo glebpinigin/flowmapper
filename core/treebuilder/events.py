@@ -45,9 +45,9 @@ class TerminalEvent:
             new_node = w.insert(new_jp_event)
             new_jp_event.set_nodeW(new_node)
             # wnode will have to delete jpEvents from w
-            in_w.track_jpEvent(new_jp_event)
-            nb.track_jpEvent(new_jp_event)
-            Q.insert(GeneralQueueData(new_jp_event))
+            jpEvent_node = Q.insert(GeneralQueueData(new_jp_event))
+            in_w.track_jpEvent(jpEvent_node)
+            nb.track_jpEvent(jpEvent_node)
 
 
     def get_polar(self):

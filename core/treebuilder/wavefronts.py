@@ -17,17 +17,20 @@ class WData(AbstractBSTData):
     def track_jpEvent(self, jp_event):
         self._jp_events.append(jp_event)
     
-    def untrack_jpEvent(self, jp_event):
-        if not jp_event in self._jp_events:
+    def flush_jpEvents(self, chosen, Q):
+        if not chosen in self._jp_events:
             raise Warning("This JPEvent is not being tracked")
         else:
-            self._jp_events.remove(jp_event)
-    
-    # перегрузить деструктор!!!!!!
+            self._jp_events.remove(chosen)
+            for event in self._jp_events:
+                Q.remove(event)
 
 
 class W(AbstractSearchTree):
-    pass
+    
+    def flush_delete(self, node, chosen, Q):
+        self.delete(node)
+        node.flush_jpEvents(chosen, Q)
 
 
 class Wo():
