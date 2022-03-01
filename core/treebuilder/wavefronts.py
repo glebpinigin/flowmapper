@@ -1,5 +1,3 @@
-from .events import JoinPointEvent
-from .spiraltree import SpiralTreeNode
 from .abst import AbstractSearchTree, AbstractBSTData
 
 class WData(AbstractBSTData):

@@ -23,5 +23,10 @@ class GeneralQueueHandler(AbstractSearchTree):
             val = GeneralQueueData(tp)
             self.insert(val)
             
-    
-    # перегрузка получения следующего
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if len(self) == 0:
+            raise StopIteration
+        return self.max()
