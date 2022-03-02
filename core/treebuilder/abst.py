@@ -16,6 +16,9 @@ class AbstractBSTData():
     
     def __le__(self, other):
         return self.unpack() <= other.unpack()
+    
+    def __repr__(self):
+        return f"{self.unpack()}"
 
 
 class SearchTreeNode:
@@ -33,6 +36,9 @@ class SearchTreeNode:
     
     def __repr__(self):
         return f"{self.val}"
+    
+    def __call__(self, *args, **kwargs):
+        return self.val(*args, **kwargs, abstnd=self)
 
 
 class AbstractSearchTree:
@@ -48,34 +54,32 @@ class AbstractSearchTree:
     
     
     def insert(self, val):
+        print(f"Inserting to {type(self)}: ", val)
         self._count()
-        new_node = SearchTreeNode(val)
-        new_node.parent = None
-        new_node.left = self.nil
-        new_node.right = self.nil
-        new_node.red = True
-        
-        parent = None
-        current = self.root
-        while current != self.nil:
-            parent = current
-            if new_node.val < current.val:
-                current = current.left
-            elif new_node.val > current.val:
-                current = current.right
+        z = SearchTreeNode(val)
+
+        y = self.nil
+        x = self.root
+        while x != self.nil:
+            y = x
+            if z.val < x.val:
+                x = x.left
+            elif z.val > x.val:
+                x = x.right
             else:
                 raise Warning("equal data in nodes")
-        
-        new_node.parent = parent
-        if parent == None:
-            self.root = new_node
-        elif new_node.val < parent.val:
-            parent.left = new_node
+        z.parent = y
+        if y == self.nil:
+            self.root = z
+        elif z.val < y.val:
+            y.left = z
         else:
-            parent.right = new_node
-        
-        self._fix_insert(new_node)
-        return new_node
+            y.right = z
+        z.left = self.nil
+        z.right = self.nil
+        z.red = True
+        self._fix_insert(z)
+        return z
     
     def _fix_insert(self, new_node):
         while new_node != self.root and new_node.parent.red:
@@ -147,7 +151,7 @@ class AbstractSearchTree:
                     x.parent.red = True
                     self.rotate_left(x.parent)
                 # CASE 2
-                if w.left.red == False and w.right.red == False:
+                elif w.left.red == False and w.right.red == False:
                     w.red = True
                     x = x.parent
                 # CASE 3
@@ -171,7 +175,7 @@ class AbstractSearchTree:
                     x.parent.red = True
                     self.rotate_right(x.parent)
                 # CASE 2
-                if w.right.red == False and w.left.red == False:
+                elif w.right.red == False and w.left.red == False:
                     w.red = True
                     x = x.parent
                 # CASE 3
@@ -218,40 +222,36 @@ class AbstractSearchTree:
         else:
             return self.__succ(node)
 
-    def rotate_left(self, node):
-        y = node.right
-        node.right = y.left
+    def rotate_left(self, x):
+        y = x.right
+        x.right = y.left
         if y.left != self.nil:
-            y.left.parent = node
-        
-        y.parent = node.parent
-        if node.parent == None:
+            y.left.parent = x
+        y.parent = x.parent
+        if x.parent == self.nil:
             self.root = y
-        elif node == node.parent.left:
-            node.parent.left = y
+        elif x == x.parent.left:
+            x.parent.left = y
         else:
-            node.parent.right = y
-        
-        y.left = node
-        node.parent = y
+            x.parent.right = y
+        y.left = x
+        x.parent = y
 
 
-    def rotate_right(self, node):
-        y = node.left
-        node.left = y.right
+    def rotate_right(self, x):
+        y = x.left
+        x.left = y.right
         if y.right != self.nil:
-            y.right.parent = node
-        
-        y.parent = node.parent
-        if node.parent == None:
+            y.right.parent = x
+        y.parent = x.parent
+        if x.parent == self.nil:
             self.root = y
-        elif node == node.parent.right:
-            node.parent.right = y
+        elif x == x.parent.right:
+            x.parent.right = y
         else:
-            node.parent.left = y
-        
-        y.right = node
-        node.parent = y
+            x.parent.left = y
+        y.right = x
+        x.parent = y
     
     def __max(self, node):
         '''max element in subtree with node as root'''
