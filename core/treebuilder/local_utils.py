@@ -48,7 +48,7 @@ def eval_a_logspiral(dst, b):
 def dst_bearing(a, b, bearing=False):
     '''
     Calculates distance and bearing between points.
-    params a, b: sequence with shape (1, 2)
+    params a, b: sequences with shape (1, 2)
     param bearing: bool. If True, bearing will be returned
     '''
     if not (np.array(a).shape == np.array(b).shape and np.array(a).shape == (2,)):
@@ -127,11 +127,12 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
     '''
     assert curve1.root == curve2.root, "Roots have to be the same" 
     assert curve1.leaf != curve2.leaf, "Leaves must not be the same (we assume that a, b, th of curves are equal"
+    root = curve1.root
     # print("first pair")
     intersection = intersect(curve1.crds["right_xy"], curve2.crds["left_xy"])
     if len(intersection) == 2:
         inter_crds0 = intersection[intersection != curve1.root]
-        dst0 = np.sqrt((inter_crds0[0]-curve1.root[0])**2 + (inter_crds0[1]-curve1.root[1])**2)
+        dst0, ang0 = dst_bearing(root, inter_crds0, True)
     else:
         inter_crds0 = np.array((None,None))
         dst0 = float('inf')
@@ -142,7 +143,7 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
 
     if len(intersection) == 2:
         inter_crds1 = intersection[intersection != curve1.root]
-        dst1 = np.sqrt((inter_crds0[0]-curve1.root[0])**2 + (inter_crds0[1]-curve1.root[1])**2)
+        dst1, ang1 = dst_bearing(root, inter_crds1, True)
     else:
         inter_crds1 = np.array((None,None))
         dst1 = float('inf')
@@ -152,22 +153,22 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
             if plotting: ax.plot(inter_crds0[0], inter_crds0[1], 'or')
         except AttributeError:
             plt.plot(inter_crds0[0], inter_crds0[1], 'or')
-        return {'curves': (curve1, curve2), 'position_type': (inter_crds0, "right"), 'dst': dst0}
+        return {'curves': (curve1, curve2), 'position_type': (inter_crds0, "right"), 'dst': dst0, 'ang': ang0}
     elif (dst1 >= dst0) and dst1 != float('inf'):
         try:
             if plotting: ax.plot(inter_crds1[0], inter_crds1[1], 'or')
         except AttributeError:
             plt.plot(inter_crds1[0], inter_crds1[1], 'or')
-        return {'curves': (curve1, curve2), 'position_type': (inter_crds1, "left"), 'dst': dst1}
+        return {'curves': (curve1, curve2), 'position_type': (inter_crds1, "left"), 'dst': dst1, 'ang': ang1}
 
     if inter_crds0.any() == None:
         if inter_crds1.any() == None:
             warnings.warn(f"None interscetion returned for curves with leaves {curve1.leaf}, {curve2.leaf}")
-            return {'curves': (curve1, curve2), 'position_type': ((0,0), "left"), 'dst': 0}
+            return {'curves': (curve1, curve2), 'position_type': ((0,0), "left"), 'dst': 0, 'ang': 0}
         else:
-            return {'curves': (curve1, curve2), 'position_type': (inter_crds1, "left"), 'dst': dst1}
+            return {'curves': (curve1, curve2), 'position_type': (inter_crds1, "left"), 'dst': dst1, 'ang': ang1}
     else:
-        return {'curves': (curve1, curve2), 'position_type': (inter_crds0, "right"), 'dst': dst0}
+        return {'curves': (curve1, curve2), 'position_type': (inter_crds0, "right"), 'dst': dst0, 'ang': ang0}
 
 
 def rad_magic(ang):
