@@ -1,4 +1,4 @@
-from .handlers import GeneralQueueHandler
+from .events import GeneralQueueHandler
 from .wavefronts import W
 from .spirals import NodeRegion
 from .spiraltree import SpiralTree
@@ -13,8 +13,10 @@ def buildTree(root=(0, 0), leaves=None, b=1.9):
     T = SpiralTree()
     for event in queue:
         event(w, T, queue)
-        queue.remove(event)
-        del event
+        # queue.delete(event)
+        print(len(queue))
+        if len(queue) == 1:
+            break
     return T
 
 

@@ -4,6 +4,7 @@ class WData(AbstractBSTData):
     
     def __init__(self, R):
         self.R = R
+        self._iBuddies = [] # Nodes with which intersection is computed
         self._jp_events = []
     
     def unpack(self):
@@ -12,7 +13,12 @@ class WData(AbstractBSTData):
     def get_curve(self):
         return self.R
     
-    def track_jpEvent(self, jp_event):
+    def isIntersected(self, nd):
+        print(nd.val in self._iBuddies or self in nd.val._iBuddies)
+        return nd.val in self._iBuddies or self in nd.val._iBuddies
+
+    def track_jpEvent(self, jp_event, nd):
+        self._iBuddies.append(nd.val)
         self._jp_events.append(jp_event)
     
     def flush_jpEvents(self, chosen, Q):

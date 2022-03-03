@@ -88,13 +88,15 @@ def draw(curves, ax1=None, ax2=None, polar=True):
 
 def tdraw(curves, ax1=None, ax2=None, polar=True):
     """Plotting set of curves"""
-    fig = plt.figure(1,(15,15)) if ax1 is None else None
+    fig = plt.figure(1,(8,8)) if ax1 is None else None
     ax1 = fig.add_subplot(221,polar=True) if ax1 is None else ax1
     ax2 = fig.add_subplot(222,polar=False) if ax2 is None else ax2
     
     for curve in curves:
-
-        curve.tplot(ax1=ax1, ax2=ax2, polar=polar)
+        try:
+            curve.tplot(ax1=ax1, ax2=ax2, polar=polar)
+        except AttributeError:
+            curve.plot(ax1=ax1, ax2=ax2, polar=polar)
 
 
 def intersect(ptarray1, ptarray2):

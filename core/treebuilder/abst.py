@@ -47,8 +47,9 @@ class AbstractSearchTree:
         """Red-Black binary search tree"""
         self.nil = SearchTreeNode(AbstractBSTData())
         self.nil.red = False
-        self.nil.left = None
-        self.nil.right = None
+        self.nil.left = self.nil
+        self.nil.right = self.nil
+        self.nil.parent = self.nil
         self.root = self.nil
         self.__counter = 0
     
@@ -81,40 +82,46 @@ class AbstractSearchTree:
         self._fix_insert(z)
         return z
     
-    def _fix_insert(self, new_node):
-        while new_node != self.root and new_node.parent.red:
-            if new_node.parent == new_node.parent.parent.right:
-                u = new_node.parent.parent.left
-                if u.red:
-                    u.red = False
-                    new_node.parent.red = False
-                    new_node.parent.parent.red = True
-                    new_node = new_node.parent.parent
+    def _fix_insert(self, z):
+        while z.parent.red == True:
+            if z.parent == z.parent.parent.left:
+                y = z.parent.parent.right
+                # CASE 1
+                if y.red == True:
+                    z.parent.red = False
+                    y.red = False
+                    z.parent.parent.red = True
+                # CASE 2
+                elif z == z.parent.right:
+                    z = z.parent
+                    self.rotate_left(z)
+                # CASE 3
                 else:
-                    if new_node == new_node.parent.left:
-                        new_node = new_node.parent
-                        self.rotate_right(new_node)
-                    new_node.parent.red = False
-                    new_node.parent.parent.red = True
-                    self.rotate_left(new_node.parent.parent)
+                    z.parent.red = False
+                    z.parent.parent.red = True
+                    self.rotate_right(z.parent.parent)
             else:
-                u = new_node.parent.parent.right
-                if u.red:
-                    u.red = False
-                    new_node.parent.red = False
-                    new_node.parent.parent.red = True
-                    new_node = new_node.parent.parent
+                y = z.parent.parent.left
+                # CASE 1
+                if y.red == True:
+                    z.parent.red = False
+                    y.red = False
+                    z.parent.parent.red = True
+                # CASE 2
+                elif z == z.parent.left:
+                    z = z.parent
+                    self.rotate_right(z)
+                # CASE 3
                 else:
-                    if new_node == new_node.parent.right:
-                        new_node = new_node.parent
-                        self.rotate_left(new_node)
-                    new_node.parent.red = False
-                    new_node.parent.parent.red = True
-                    self.rotate_right(new_node.parent.parent)
+                    z.parent.red = False
+                    z.parent.parent.red = True
+                    self.rotate_left(z.parent.parent)
+
         self.root.red = False
-        self.root.parent = self.nil # !!! Do we need this???
+        # self.root.parent = self.nil # !!! Do we need this???
 
     def delete(self, z): # variables names from T.H.Cormen Introduction to algorithms
+        print(f"Deleting from {type(self)}: ", z.val)
         self._uncount()
         if z.left == self.nil or z.right == self.nil:
             y = z
