@@ -39,6 +39,19 @@ class W(AbstractSearchTree):
         val.flush_jpEvents(chosen, Q)
         super().delete_by_val(z.val)
 
+    def succ(self, node):
+        succ = super().succ(node)
+        if succ is not None:
+            return succ
+        else:
+            return self.get_min()
+
+    def pred(self, node):
+        pred = super().pred(node)
+        if pred is not None:
+            return pred
+        else:
+            return self.get_max()
 
 
 class Wo():

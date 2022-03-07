@@ -133,7 +133,8 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
     # print("first pair")
     intersection = intersect(curve1.crds["right_xy"], curve2.crds["left_xy"])
     if len(intersection) == 2:
-        inter_crds0 = list(filter(lambda x: x != root, intersection))[0]
+        inter_crds0 = np.array(LineString(intersection).coords)
+        inter_crds0 = inter_crds0[inter_crds0 != curve1.root]
         dst0, ang0 = dst_bearing(root, inter_crds0, True)
     else:
         inter_crds0 = np.array((None,None))
@@ -144,19 +145,22 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
     intersection = intersect(curve1.crds["left_xy"], curve2.crds["right_xy"])
 
     if len(intersection) == 2:
-        inter_crds1 = intersection[intersection != curve1.root]
+        inter_crds1 = np.array(LineString(intersection).coords)
+        inter_crds1 = inter_crds1[inter_crds1 != curve1.root]
         dst1, ang1 = dst_bearing(root, inter_crds1, True)
     else:
         inter_crds1 = np.array((None,None))
         dst1 = float('inf')
     
     if (dst0 >= dst1) and dst0 != float('inf'):
+        inter_crds0 = tuple(inter_crds0.tolist())
         try:
             if plotting: ax.plot(inter_crds0[0], inter_crds0[1], 'or')
         except AttributeError:
             plt.plot(inter_crds0[0], inter_crds0[1], 'or')
         return {'curves': (curve1, curve2), 'position_type': (inter_crds0, "right"), 'dst': dst0, 'ang': ang0}
     elif (dst1 >= dst0) and dst1 != float('inf'):
+        inter_crds1 = tuple(inter_crds1.tolist())
         try:
             if plotting: ax.plot(inter_crds1[0], inter_crds1[1], 'or')
         except AttributeError:
@@ -168,8 +172,10 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
             warnings.warn(f"None interscetion returned for curves with leaves {curve1.leaf}, {curve2.leaf}")
             return {'curves': (curve1, curve2), 'position_type': ((0,0), "left"), 'dst': 0, 'ang': 0}
         else:
+            inter_crds1 = tuple(inter_crds1.tolist())
             return {'curves': (curve1, curve2), 'position_type': (inter_crds1, "left"), 'dst': dst1, 'ang': ang1}
     else:
+        inter_crds0 = tuple(inter_crds0.tolist())
         return {'curves': (curve1, curve2), 'position_type': (inter_crds0, "right"), 'dst': dst0, 'ang': ang0}
 
 

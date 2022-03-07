@@ -14,7 +14,7 @@ class GeneralQueueData(AbstractBSTData):
         return self.event.get_polar()["dst"]
     
     def __call__(self, *args, **kwargs):
-        print(f"\n  Event call at {self.unpack()}")
+        print(f"\n  Event call at {self}, {self.event.R.leaf}")
         self.event(*args, **kwargs)
 
 
@@ -70,16 +70,17 @@ class TerminalEvent:
         in_w = w.insert(val)
         # find left and right potential neighbours in W
         nbhood = w.get_nbhood(in_w)
-        # check if t inside neighbour's region
         
-        
-        # find intersections with neibourhood
+        # working with neighbours
         for nb in nbhood:
-            if nb is None:
+            if nb == in_w:
                 continue
             elif in_w.val.isIntersected(nb):
                 print("Found intersected")
                 continue
+            # check if t inside neighbour's region
+
+            # find intersections with neibourhood
             intersection = Intersection(in_w, nb)
             print(intersection)
             # creating JPEvent from intersection
@@ -92,7 +93,7 @@ class TerminalEvent:
             jpEvent_node = Q.insert(GeneralQueueData(new_jp_event))
             in_w.val.track_jpEvent(jpEvent_node, nb)
             nb.val.track_jpEvent(jpEvent_node, in_w)
-        Q.delete(kwargs["abstnd"])
+        Q.delete_by_val(kwargs["abstnd"].val)
         print("    Terminal event call out\n")
 
 
@@ -144,7 +145,7 @@ class JoinPointEvent:
         T.insertSteinerNode(self.R, curve1, curve2)
         
         # remove JPEvent from queue
-        Q.delete(kwargs["abstnd"]) # parent of node is itself!??
+        Q.delete_by_val(kwargs["abstnd"].val) # parent of node is itself!??
 
         for nd in self.intersection.get_nds():
             w.delete(nd, chosen=kwargs["abstnd"], Q=Q, val=nd.val)
