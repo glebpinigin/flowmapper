@@ -22,15 +22,17 @@ class WData(AbstractBSTData):
         self._iBuddies.append(nd.val)
         self._jp_events.append(jp_event.val)
     
-    def flush_jpEvents(self, chosen, Q):
-        if not chosen.val in self._jp_events:
-            raise Warning("This JPEvent is not being tracked")
-        else:
-            self._jp_events.remove(chosen.val)
-            for eventval in self._jp_events:
-                if chosen.val > eventval: # sometimes old nodes stored in events, however they are not in queue
-                    Q.delete_by_val(eventval)
-            self._jp_events = []
+    def flush_jpEvents(self, chosen=None, Q=None):
+        if chosen is not None:
+            if not chosen.val in self._jp_events:
+                raise Warning("This JPEvent is not being tracked")
+            else:
+                self._jp_events.remove(chosen.val)
+        for eventval in self._jp_events:
+            if chosen.val > eventval:
+                Q.delete_by_val(eventval)
+
+        self._jp_events = []
 
 
 class W(AbstractSearchTree):

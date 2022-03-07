@@ -12,7 +12,8 @@ def buildTree(root=(0, 0), leaves=None, b=1.9):
     stacked = np.column_stack(leaves)
     
     extent = [(stacked[0].min(), stacked[1].min()), (stacked[0].max(), stacked[1].max())] # (lowerleft), (upperright)
-
+    print(extent, "\n")
+    
     never_activated = [NodeRegion(b=b, root=root, leaf=leaf) for leaf in leaves]
     
     queue = GeneralQueueHandler(never_activated) # assign NodeRegions for leaves as terminal events

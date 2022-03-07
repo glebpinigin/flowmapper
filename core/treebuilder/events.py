@@ -1,6 +1,7 @@
+import numpy as np
 from .spiraltree import SpiralTree
 from .wavefronts import W, WData
-from .local_utils import intersect_curves, rl_inverse
+from .local_utils import intersect_curves, rl_inverse, intersect
 from .spirals import NodeRegion
 from .abst import AbstractSearchTree, AbstractBSTData
 
@@ -79,7 +80,12 @@ class TerminalEvent:
                 print("Found intersected")
                 continue
             # check if t inside neighbour's region
-
+            out_key = checkUnderlying(in_w.val, nb.val, kwargs["extent"])
+            if out_key:
+                w.delete(nb, Q=Q, val=nb.val, chosen=None)
+                T.repairUnderlying(in_w.val.R, nb.val.R)
+                nb.val.R.collapseRegion(self.R.leaf, nb.val.R.leaf)
+                continue
             # find intersections with neibourhood
             intersection = Intersection(in_w, nb)
             print(intersection)
@@ -104,6 +110,25 @@ class TerminalEvent:
     def get_curve(self):
         return self.R
 
+def checkUnderlying(close_val, far_val, extent) -> bool:
+    # building region as linestring
+    x1, y1 = far_val.R.crds["right_xy"]
+    x12, y12 = far_val.R.crds["left_xy"]
+    x1 = np.append(x1, x12[-2::-1])
+    y1 = np.append(y1, y12[-2::-1])
+    # duilding checker line
+    x2, y2 = close_val.R.leaf
+    x22, y22 = extent[1]
+    x2 = (x2, x22)
+    y2 = (y2, y22)
+    # intersecting
+    intersection = intersect((x1, y1), (x2, y2))
+    # checking number of intersections
+    if len(intersection) == 2 or intersection == ((),):
+        out_key = False
+    else:
+        out_key = True
+    return out_key
 
 class JoinPointEvent:
     

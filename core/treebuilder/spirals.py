@@ -193,6 +193,9 @@ class NodeRegion():
         except AttributeError:
             return self.dst
 
+    def collapseRegion(self, root, leaf):
+        self.tp = "right"
+        self.crds["right_xy"] = [(root[0], leaf[0]), (root[1], leaf[1])]
 
 
 class FlowTreeBuilder():

@@ -3,7 +3,7 @@ import core.treebuilder.treebuilder as tbldr
 from core.treebuilder.local_utils import tdraw
 from expls import *
 
-leaves = getLeaf(1)
+leaves = getLeaf(5)
 #leaves = list(filter(lambda x: x[0] > 0, leaves))
 #leaves.append((-25.11407890334805, -153.18910434475615))
 
