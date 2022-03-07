@@ -52,7 +52,7 @@ def dst_bearing(a, b, bearing=False):
     param bearing: bool. If True, bearing will be returned
     '''
     if not (np.array(a).shape == np.array(b).shape and np.array(a).shape == (2,)):
-        raise ValueError("a, b has to be sequences with shape (1, 2)")
+        raise ValueError(f"a, b has to be sequences with shape (1, 2), a: {a} b: {b}")
     dx = b[0] - a[0]
     dy = b[1] - a[1]
     dst = np.sqrt(dx**2 + dy**2)
@@ -89,9 +89,9 @@ def draw(curves, ax1=None, ax2=None, polar=True):
 def tdraw(curves, ax1=None, ax2=None, polar=True):
     """Plotting set of curves"""
     fig = plt.figure(1,(8,8)) if ax1 is None else None
-    ax1 = fig.add_subplot(221,polar=True) if ax1 is None else ax1
-    ax2 = fig.add_subplot(222,polar=False) if ax2 is None else ax2
-    
+    ax1 = fig.add_subplot(121,polar=True) if ax1 is None else ax1
+    ax2 = fig.add_subplot(122,polar=False) if ax2 is None else ax2
+
     for curve in curves:
         try:
             curve.tplot(ax1=ax1, ax2=ax2, polar=polar)
@@ -113,7 +113,7 @@ def intersect(ptarray1, ptarray2):
     if type(intersection) == MultiPoint:
         return [(i.coords.xy[0][0], i.coords.xy[1][0]) for i in intersection.geoms]
     elif type(intersection) == Point:
-        return (intersection.coords.xy[0][0], intersection.coords.xy[1][0])
+        return ((intersection.coords.xy[0][0], intersection.coords.xy[1][0]),)
     else:
         return ((),)
 
@@ -133,7 +133,7 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
     # print("first pair")
     intersection = intersect(curve1.crds["right_xy"], curve2.crds["left_xy"])
     if len(intersection) == 2:
-        inter_crds0 = intersection[intersection != curve1.root]
+        inter_crds0 = list(filter(lambda x: x != root, intersection))[0]
         dst0, ang0 = dst_bearing(root, inter_crds0, True)
     else:
         inter_crds0 = np.array((None,None))

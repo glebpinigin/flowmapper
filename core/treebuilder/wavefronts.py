@@ -1,4 +1,5 @@
 from .abst import AbstractSearchTree, AbstractBSTData
+from .local_utils import rad_back_magic
 
 class WData(AbstractBSTData):
     
@@ -8,7 +9,7 @@ class WData(AbstractBSTData):
         self._jp_events = []
     
     def unpack(self):
-        return self.R.ang
+        return rad_back_magic(self.R.ang)
     
     def get_curve(self):
         return self.R
@@ -19,22 +20,25 @@ class WData(AbstractBSTData):
 
     def track_jpEvent(self, jp_event, nd):
         self._iBuddies.append(nd.val)
-        self._jp_events.append(jp_event)
+        self._jp_events.append(jp_event.val)
     
     def flush_jpEvents(self, chosen, Q):
-        if not chosen in self._jp_events:
+        if not chosen.val in self._jp_events:
             raise Warning("This JPEvent is not being tracked")
         else:
-            self._jp_events.remove(chosen)
-            for event in self._jp_events:
-                Q.remove(event)
+            self._jp_events.remove(chosen.val)
+            for eventval in self._jp_events:
+                if chosen.val > eventval: # sometimes old nodes stored in events, however they are not in queue
+                    Q.delete_by_val(eventval)
+            self._jp_events = []
 
 
 class W(AbstractSearchTree):
     
-    def flush_delete(self, node, chosen, Q):
-        self.delete(node)
-        node.flush_jpEvents(chosen, Q)
+    def delete(self, z, chosen, Q, val):
+        val.flush_jpEvents(chosen, Q)
+        super().delete_by_val(z.val)
+
 
 
 class Wo():

@@ -120,9 +120,13 @@ class AbstractSearchTree:
         self.root.red = False
         # self.root.parent = self.nil # !!! Do we need this???
 
-    def delete(self, z): # variables names from T.H.Cormen Introduction to algorithms
+    def _delete(self, z): # variables names from T.H.Cormen Introduction to algorithms
         print(f"Deleting from {type(self)}: ", z.val)
         self._uncount()
+        if self.__counter == 0:
+            print(f"COUNTER = ZERO at {type(self)}")
+            self.root = self.nil
+            return self.root
         if z.left == self.nil or z.right == self.nil:
             y = z
         else:
@@ -157,21 +161,22 @@ class AbstractSearchTree:
                     w.red = False
                     x.parent.red = True
                     self.rotate_left(x.parent)
+                    w = x.parent.right
                 # CASE 2
-                elif w.left.red == False and w.right.red == False:
+                if w.left.red == False and w.right.red == False:
                     w.red = True
                     x = x.parent
                 # CASE 3
-                elif w.right.red == False:
-                    w.left.red = False
-                    w.red = True
-                    self.rotate_right(w)
-                    w = x.parent.right
-                # CASE 4
                 else:
+                    if w.right.red == False:
+                        w.left.red = False
+                        w.red = True
+                        self.rotate_right(w)
+                        w = x.parent.right
+                # CASE 4
                     w.red = x.parent.red
                     x.parent.red = False
-                    w.right.ewd = False
+                    w.right.red = False
                     self.rotate_left(x.parent)
                     x = self.root
             else:
@@ -181,25 +186,29 @@ class AbstractSearchTree:
                     w.red = False
                     x.parent.red = True
                     self.rotate_right(x.parent)
+                    w = x.parent.left
                 # CASE 2
-                elif w.right.red == False and w.left.red == False:
+                if w.right.red == False and w.left.red == False:
                     w.red = True
                     x = x.parent
                 # CASE 3
-                elif w.left.red == False:
-                    w.right.red = False
-                    w.red = True
-                    self.rotate_left(w)
-                    w = x.parent.left
-                # CASE 4
                 else:
+                    if w.left.red == False:
+                        w.right.red = False
+                        w.red = True
+                        self.rotate_left(w)
+                        w = x.parent.left
+                # CASE 4
                     w.red = x.parent.red
                     x.parent.red = False
-                    w.left.ewd = False
+                    w.left.red = False
                     self.rotate_right(x.parent)
                     x = self.root
         x.red = False
 
+    def delete_by_val(self, val):
+        z = self.get_nd_by_val(val)
+        if z is not None: self._delete(z)
 
     def __pred(self, node):
         if node == self.root:
@@ -279,6 +288,19 @@ class AbstractSearchTree:
 
     def get_min(self):
         return self.__min(self.root)
+    
+    def _get_nd_by_val(self, searchRoot, val):
+        if searchRoot == self.nil:
+            return None
+        elif val == searchRoot.val:
+            return searchRoot
+        elif val > searchRoot.val:
+            return self._get_nd_by_val(searchRoot.right, val)
+        elif val < searchRoot.val:
+            return self._get_nd_by_val(searchRoot.left, val)
+    
+    def get_nd_by_val(self, val: SearchTreeNode):
+        return self._get_nd_by_val(self.root, val)
 
     def get_nbhood(self, node):
         '''

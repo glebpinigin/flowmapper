@@ -3,6 +3,8 @@ from .wavefronts import W
 from .spirals import NodeRegion
 from .spiraltree import SpiralTree
 
+from matplotlib import pyplot as plt
+from core.treebuilder.local_utils import tdraw
 
 def buildTree(root=(0, 0), leaves=None, b=1.9):
     
@@ -15,6 +17,8 @@ def buildTree(root=(0, 0), leaves=None, b=1.9):
         event(w, T, queue)
         # queue.delete(event)
         print(len(queue))
+        tdraw(list(T.nodes)[1:])
+        plt.show()
         if len(queue) == 1:
             break
     return T

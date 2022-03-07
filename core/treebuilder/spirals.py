@@ -298,7 +298,8 @@ class FlowTreeBuilder():
 if __name__ == "__main__":
     # some tests
     leaves = [ (17, -4), (20, 7), (-10, 15), (-5, 20), (-8, -20), (20, 0), (5, 10), (22, 4), (-30, 5), (-35, -6)]
-    leaves = [ (10, 0), (10, 10), (0, 9), (15, 8.2)]
+    leaves = [ (10, 0), (10, 10), (0, 9), (15, 8.2), (10, 3.6)]
+    leaves = [ (10, 0), (10, 10), (0, 9), (15, 8.2), (10, 3.6), (17, 4.1)]
     expl = FlowTreeBuilder(b=1.9, leaves=leaves, vbs=False)
     plt.show()
 

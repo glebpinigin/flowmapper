@@ -14,6 +14,7 @@ class GeneralQueueData(AbstractBSTData):
         return self.event.get_polar()["dst"]
     
     def __call__(self, *args, **kwargs):
+        print(f"\n  Event call at {self.unpack()}")
         self.event(*args, **kwargs)
 
 
@@ -33,6 +34,9 @@ class GeneralQueueHandler(AbstractSearchTree):
         if len(self) == 0:
             raise StopIteration
         return self.get_max()
+    
+    def delete(self, *args, **kwargs):
+        super()._delete(*args, **kwargs)
 
 
 class Intersection:
@@ -139,10 +143,12 @@ class JoinPointEvent:
         
         T.insertSteinerNode(self.R, curve1, curve2)
         
-        for nd in self.intersection.get_nds():
-            w.delete(nd)
         # remove JPEvent from queue
-        Q.delete(kwargs["abstnd"])
+        Q.delete(kwargs["abstnd"]) # parent of node is itself!??
+
+        for nd in self.intersection.get_nds():
+            w.delete(nd, chosen=kwargs["abstnd"], Q=Q, val=nd.val)
+        
         # add TerminalEvent to queue
         tp = TerminalEvent(self.R)
         val = GeneralQueueData(tp)
