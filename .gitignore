@@ -3,3 +3,4 @@ nothing.py
 __pycache__
 core/treebuilder/__pycache__
 figs
+.code-workspace
