@@ -13,7 +13,7 @@ class NodeRegion():
 
     s = 100
 
-    def __init__(self, root=None, leaf=None, params_r=None, params_l=None, crds=None, b=None, fake_uplim=None):
+    def __init__(self, root=None, leaf=None, params_r=None, params_l=None, crds=None, b=None, fake_uplim=None, volume=1):
         """Constructor"""
         self.thmax = {'right': np.pi, 'left': np.pi} if fake_uplim is None else fake_uplim
 
@@ -55,6 +55,7 @@ class NodeRegion():
                     "right_xy": rect_logspiral(r, self.th, self.ang, "right"),
                     "left_xy": rect_logspiral(r, self.th, self.ang, "left")
                 }
+        self.volume = volume
 
 
 
@@ -250,7 +251,7 @@ class FlowTreeBuilder():
 
             # filtering intersections
             for join_position in filter(lambda x: x["dst"] > C, intersections):
-                print(join_position['dst'])
+                #print(join_position['dst'])
                 # unpacking intersection
                 lowerlimit_xy, tp1 = join_position["position_type"]
                 tp2 = rl_inverse(tp1)

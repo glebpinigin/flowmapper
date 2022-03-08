@@ -15,7 +15,7 @@ class GeneralQueueData(AbstractBSTData):
         return self.event.get_polar()["dst"]
     
     def __call__(self, *args, **kwargs):
-        print(f"\n  Event call at {self}, {self.event.R.leaf}")
+        # print(f"\n  Event call at {self}, {self.event.R.leaf}")
         self.event(*args, **kwargs)
 
 
@@ -64,7 +64,7 @@ class TerminalEvent:
         self.R = R # spiral region assigned with terminal event
     
     def __call__(self, w: W, T: SpiralTree, Q, *args, **kwargs):
-        print("\n    Terminal event call in")
+        # print("\n    Terminal event call in")
         T.insertLeaf(self.R)
 
         val = WData(self.R)
@@ -77,18 +77,19 @@ class TerminalEvent:
             if nb == in_w.val:
                 continue
             elif in_w.val.isIntersected(nb):
-                print("Found intersected")
+                # print("Found intersected")
                 continue
             # check if t inside neighbour's region
             out_key = checkUnderlying(in_w.val, nb, kwargs["extent"])
             if out_key:
+                self.R.volume += nb.R.volume
                 T.repairUnderlying(in_w.val.R, nb.R)
                 w.delete(Q=Q, val=nb, chosen=None)
                 nb.R.collapseRegion(self.R.leaf, nb.R.leaf)
                 continue
             # find intersections with neibourhood
             intersection = Intersection(in_w.val, nb)
-            print(intersection)
+            # print(intersection)
             # creating JPEvent from intersection
             new_jp_event = JoinPointEvent(intersection)
 
@@ -100,7 +101,7 @@ class TerminalEvent:
             in_w.val.track_jpEvent(jpEvent_node.val, nb)
             nb.track_jpEvent(jpEvent_node.val, in_w.val)
         Q.delete_by_val(kwargs["abstnd"].val)
-        print("    Terminal event call out\n")
+        # print("    Terminal event call out\n")
 
 
     def get_polar(self):
@@ -154,12 +155,13 @@ class JoinPointEvent:
         leaf=lowerlimit_xy, 
         params_l=params_l['left'], 
         params_r=params_r['right'],
-        fake_uplim=fake_uplim)
+        fake_uplim=fake_uplim, 
+        volume=curve1.volume+curve2.volume)
 
         self.R = steiner_region
     
     def __call__(self, w, T: SpiralTree, Q, *args, **kwargs):
-        print("\n    Join point event call in")
+        # print("\n    Join point event call in")
         # cut node curves
         lowerlimit_xy, tp1 = self.intersection.get_intersection_pars()["position_type"]
         tp2 = rl_inverse(tp1)
@@ -179,7 +181,7 @@ class JoinPointEvent:
         tp = TerminalEvent(self.R)
         val = GeneralQueueData(tp)
         Q.insert(val)
-        print("    Join point event call out\n")
+        # print("    Join point event call out\n")
     
     def get_polar(self):
         return {

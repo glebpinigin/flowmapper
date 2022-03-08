@@ -55,7 +55,7 @@ class AbstractSearchTree:
     
     
     def insert(self, val):
-        print(f"Inserting to {type(self)}: ", val)
+        # print(f"Inserting to {type(self)}: ", val)
         self._count()
         z = SearchTreeNode(val)
 
@@ -126,10 +126,10 @@ class AbstractSearchTree:
         self.root.parent = self.nil # !!! Do we need this???
 
     def _delete(self, z): # variables names from T.H.Cormen Introduction to algorithms
-        print(f"Deleting from {type(self)}: ", z.val)
+        # print(f"Deleting from {type(self)}: ", z.val)
         self._uncount()
         if self.__counter == 0:
-            print(f"COUNTER = ZERO at {type(self)}")
+            # print(f"COUNTER = ZERO at {type(self)}")
             self.root = self.nil
             return self.root
 

@@ -15,7 +15,7 @@ class WData(AbstractBSTData):
         return self.R
     
     def isIntersected(self, nd):
-        print(nd in self._iBuddies or self in nd._iBuddies)
+        #print(nd in self._iBuddies or self in nd._iBuddies)
         return nd in self._iBuddies or self in nd._iBuddies
 
     def track_jpEvent(self, jp_event, nd):
