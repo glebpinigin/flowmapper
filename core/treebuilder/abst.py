@@ -80,6 +80,9 @@ class AbstractSearchTree:
         z.right = self.nil
         z.red = True
         self._fix_insert(z)
+        self.nil.right = self.nil
+        self.nil.left = self.nil
+        self.nil.parent = self.nil
         return z
     
     def _fix_insert(self, z):
@@ -91,12 +94,13 @@ class AbstractSearchTree:
                     z.parent.red = False
                     y.red = False
                     z.parent.parent.red = True
-                # CASE 2
-                elif z == z.parent.right:
-                    z = z.parent
-                    self.rotate_left(z)
-                # CASE 3
+                    z = z.parent.parent
                 else:
+                    # CASE 2
+                    if z == z.parent.right:
+                        z = z.parent
+                        self.rotate_left(z)
+                    # CASE 3
                     z.parent.red = False
                     z.parent.parent.red = True
                     self.rotate_right(z.parent.parent)
@@ -107,18 +111,19 @@ class AbstractSearchTree:
                     z.parent.red = False
                     y.red = False
                     z.parent.parent.red = True
-                # CASE 2
-                elif z == z.parent.left:
-                    z = z.parent
-                    self.rotate_right(z)
-                # CASE 3
+                    z = z.parent.parent
                 else:
+                    # CASE 2
+                    if z == z.parent.left:
+                        z = z.parent
+                        self.rotate_right(z)
+                    # CASE 3
                     z.parent.red = False
                     z.parent.parent.red = True
                     self.rotate_left(z.parent.parent)
 
         self.root.red = False
-        # self.root.parent = self.nil # !!! Do we need this???
+        self.root.parent = self.nil # !!! Do we need this???
 
     def _delete(self, z): # variables names from T.H.Cormen Introduction to algorithms
         print(f"Deleting from {type(self)}: ", z.val)
@@ -127,6 +132,7 @@ class AbstractSearchTree:
             print(f"COUNTER = ZERO at {type(self)}")
             self.root = self.nil
             return self.root
+
         if z.left == self.nil or z.right == self.nil:
             y = z
         else:
@@ -150,6 +156,9 @@ class AbstractSearchTree:
             z.val = y.val
         if y.red == False:
             self._fix_delete(x)
+        self.nil.right = self.nil
+        self.nil.left = self.nil
+        self.nil.parent = self.nil
         return y
     
     def _fix_delete(self, x):
@@ -219,6 +228,7 @@ class AbstractSearchTree:
             return self.__pred(node.parent)
 
     def pred(self, node):
+        node = self.get_nd_by_val(node.val)
         if node.left != self.nil:
             return self.__max(node.left)
         else:
@@ -233,6 +243,7 @@ class AbstractSearchTree:
             return self.__succ(node.parent)
 
     def succ(self, node):
+        node = self.get_nd_by_val(node.val)
         if node.right != self.nil:
             return self.__min(node.right)
         else:
@@ -299,12 +310,12 @@ class AbstractSearchTree:
         elif val < searchRoot.val:
             return self._get_nd_by_val(searchRoot.left, val)
     
-    def get_nd_by_val(self, val: SearchTreeNode):
+    def get_nd_by_val(self, val):
         return self._get_nd_by_val(self.root, val)
 
     def get_nbhood(self, node):
         '''
-        return: (predecessor, succwer)
+        return: (predecessor, succeder)
         '''
         return (self.pred(node), self.succ(node))
 

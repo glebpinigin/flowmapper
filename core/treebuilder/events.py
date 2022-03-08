@@ -32,7 +32,7 @@ class GeneralQueueHandler(AbstractSearchTree):
         return self
 
     def __next__(self):
-        if len(self) == 0:
+        if self.root == self.nil:
             raise StopIteration
         return self.get_max()
     
@@ -47,7 +47,7 @@ class Intersection:
         args: exactly 2 wavefront nodes
         """
         self._nds = (args[0], args[1])
-        self._intersection_pars = intersect_curves(self._nds[0].val.get_curve(), self._nds[1].val.get_curve())
+        self._intersection_pars = intersect_curves(self._nds[0].get_curve(), self._nds[1].get_curve())
 
     def get_nds(self):
         return self._nds
@@ -74,20 +74,20 @@ class TerminalEvent:
         
         # working with neighbours
         for nb in nbhood:
-            if nb == in_w:
+            if nb == in_w.val:
                 continue
             elif in_w.val.isIntersected(nb):
                 print("Found intersected")
                 continue
             # check if t inside neighbour's region
-            out_key = checkUnderlying(in_w.val, nb.val, kwargs["extent"])
+            out_key = checkUnderlying(in_w.val, nb, kwargs["extent"])
             if out_key:
-                w.delete(nb, Q=Q, val=nb.val, chosen=None)
-                T.repairUnderlying(in_w.val.R, nb.val.R)
-                nb.val.R.collapseRegion(self.R.leaf, nb.val.R.leaf)
+                T.repairUnderlying(in_w.val.R, nb.R)
+                w.delete(Q=Q, val=nb, chosen=None)
+                nb.R.collapseRegion(self.R.leaf, nb.R.leaf)
                 continue
             # find intersections with neibourhood
-            intersection = Intersection(in_w, nb)
+            intersection = Intersection(in_w.val, nb)
             print(intersection)
             # creating JPEvent from intersection
             new_jp_event = JoinPointEvent(intersection)
@@ -97,8 +97,8 @@ class TerminalEvent:
             # new_jp_event.set_nodeW(new_node)
             # wnode will have to delete jpEvents from w
             jpEvent_node = Q.insert(GeneralQueueData(new_jp_event))
-            in_w.val.track_jpEvent(jpEvent_node, nb)
-            nb.val.track_jpEvent(jpEvent_node, in_w)
+            in_w.val.track_jpEvent(jpEvent_node.val, nb)
+            nb.track_jpEvent(jpEvent_node.val, in_w.val)
         Q.delete_by_val(kwargs["abstnd"].val)
         print("    Terminal event call out\n")
 
@@ -172,8 +172,8 @@ class JoinPointEvent:
         # remove JPEvent from queue
         Q.delete_by_val(kwargs["abstnd"].val) # parent of node is itself!??
 
-        for nd in self.intersection.get_nds():
-            w.delete(nd, chosen=kwargs["abstnd"], Q=Q, val=nd.val)
+        for val in self.intersection.get_nds():
+            w.delete(chosen=kwargs["abstnd"], Q=Q, val=val)
         
         # add TerminalEvent to queue
         tp = TerminalEvent(self.R)

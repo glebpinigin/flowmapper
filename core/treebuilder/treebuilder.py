@@ -20,12 +20,15 @@ def buildTree(root=(0, 0), leaves=None, b=1.9):
     w = W()
     T = SpiralTree()
     for event in queue:
+        # if event.val.unpack() == 73.95291165118905:
+        #     tdraw(list(T.nodes)[1:])
+        #     plt.show()
         event(w, T, queue, extent=extent)
         # queue.delete(event)
         print(len(queue))
         # tdraw(list(T.nodes)[1:])
         # plt.show()
-        # if len(queue) == 13:
+        # if len(queue) == 6:
         #     break
     return T
 

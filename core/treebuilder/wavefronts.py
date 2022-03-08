@@ -15,12 +15,12 @@ class WData(AbstractBSTData):
         return self.R
     
     def isIntersected(self, nd):
-        print(nd.val in self._iBuddies or self in nd.val._iBuddies)
-        return nd.val in self._iBuddies or self in nd.val._iBuddies
+        print(nd in self._iBuddies or self in nd._iBuddies)
+        return nd in self._iBuddies or self in nd._iBuddies
 
     def track_jpEvent(self, jp_event, nd):
-        self._iBuddies.append(nd.val)
-        self._jp_events.append(jp_event.val)
+        self._iBuddies.append(nd)
+        self._jp_events.append(jp_event)
     
     def flush_jpEvents(self, chosen=None, Q=None):
         if chosen is not None:
@@ -29,31 +29,25 @@ class WData(AbstractBSTData):
             else:
                 self._jp_events.remove(chosen.val)
         for eventval in self._jp_events:
-            if chosen.val > eventval:
-                Q.delete_by_val(eventval)
+            Q.delete_by_val(eventval)
 
         self._jp_events = []
 
 
 class W(AbstractSearchTree):
     
-    def delete(self, z, chosen, Q, val):
+    def delete(self, chosen, Q, val):
         val.flush_jpEvents(chosen, Q)
-        super().delete_by_val(z.val)
+        super().delete_by_val(val)
 
-    def succ(self, node):
-        succ = super().succ(node)
-        if succ is not None:
-            return succ
-        else:
-            return self.get_min()
-
-    def pred(self, node):
-        pred = super().pred(node)
-        if pred is not None:
-            return pred
-        else:
-            return self.get_max()
+    def get_nbhood(self, node):
+        pred = self.pred(node)
+        if pred is None:
+            pred = self.get_max()
+        succ = self.succ(node)
+        if succ is None:
+            succ = self.get_min()
+        return (pred.val, succ.val)
 
 
 class Wo():
