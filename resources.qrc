@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/flow_mapper" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
