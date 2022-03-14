@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
-import core.treebuilder.treebuilder as tbldr
-from core.treebuilder.local_utils import tdraw
+import flow_mapper.treebuilder.treebuilder as tbldr
+from flow_mapper.treebuilder.local_utils import tdraw
 from expls import *
 import numpy as np
 import datetime
