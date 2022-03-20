@@ -3,49 +3,28 @@ from matplotlib import pyplot as plt
 from shapely.geometry import LineString, Point, MultiPoint
 import warnings
 
-def polar_logspiral(a, b, th):
-    '''
-    ОПРЕДЕЛЕНИЕ ЗНАЧЕНИЙ РАДИУСА ДЛЯ ОБЛАСТИ ОПРЕДЕЛЕНИЙ (углов)
-    Экспонента сдвинута на -1.
-    Таким образом область значений сдвигается на -self.a относительно лог. спирали по определению
-    Это необходио, чтобы область значений начиналась от 0
-    th: np.array область определения (массив углов для котрых требуется рассчитать радиус)
-    '''
-    return a*(np.exp(b*th)-1)
+def polar_logspiral(alpha, dst, ang, th, tp):
+    
+    sign = lrsign(tp)
+    phi = ang + sign*np.tan(alpha)*th
+    r = dst*(np.exp(-th))
+    return  phi, r
 
+def lrsign(key):
+    assert key in ('right', 'left'), "must be 'right' or 'left'"
+    if key =='right':
+        return 1
+    else:
+        return -1
 
-def rect_logspiral(r, th, ang, tp):
-    '''
-    bestway to call: crds[f'{tp}_xy'] = rect_logspiral(r, th, ang, tp)
-    ПЕРЕВОД В ПРЯМОУГОЛЬНЫЕ КООРДИНАТЫ
-    Функция переводит кривую в полярных координатах (массив R(th) для массива th) в прямоугольные (массив x и массив y)
-    Результат: редактирование атрибута self.crds
+def rect_logspiral(r, phi):
 
-    input: обязательных аргументов нет
-    R: массив R(th). Если None, то используется self.R
-
-    return: self.crds (на всякий случай)
-    '''
-    sign = 1 if tp == 'right' else -1
-    thc = sign*th + ang + np.pi
-    x = r*np.cos(thc)
-    y = r*np.sin(thc)
+    x = r*np.cos(phi)
+    y = r*np.sin(phi)
     return [x, y]
 
 
-def eval_a_logspiral(dst, b):
-    '''
-    РАСЧЁТ self.a
-    Рассчитывает параметр a, который нужно использовать, чтобы "вписать" кривую с заданным b
-    между корнем и листом
-    Экспонента сдвинута на -1
-    
-    Входных параметров и return не предусмотрено
-    '''
-    return dst/(np.exp(b*np.pi)-1)
-
-
-def dst_bearing(a, b, bearing=False):
+def dst_bearing(a, b):
     '''
     Calculates distance and bearing between points.
     params a, b: sequences with shape (1, 2)
@@ -77,18 +56,19 @@ def rl_inverse(key):
 
 def draw(curves, ax1=None, ax2=None, polar=True):
     """Plotting set of curves"""
-    fig = plt.figure(1,(15,15)) if ax1 is None else None
+    fig = plt.figure(1,(8,4)) if ax1 is None else None
     ax1 = fig.add_subplot(221,polar=True) if ax1 is None else ax1
     ax2 = fig.add_subplot(222,polar=False) if ax2 is None else ax2
     
     for curve in curves:
 
         curve.plot(ax1=ax1, ax2=ax2, polar=polar)
+    return ax1, ax2
 
 
 def tdraw(curves, ax1=None, ax2=None, polar=True):
     """Plotting set of curves"""
-    fig = plt.figure(1,(8,8)) if ax1 is None else None
+    fig = plt.figure(1,(8,4)) if ax1 is None else None
     ax1 = fig.add_subplot(121,polar=True) if ax1 is None else ax1
     ax2 = fig.add_subplot(122,polar=False) if ax2 is None else ax2
 
@@ -97,9 +77,10 @@ def tdraw(curves, ax1=None, ax2=None, polar=True):
             curve.tplot(ax1=ax1, ax2=ax2, polar=polar)
         except AttributeError:
             curve.plot(ax1=ax1, ax2=ax2, polar=polar)
+    return ax1, ax2
 
 
-def intersect(ptarray1, ptarray2):
+def intersect_num(ptarray1, ptarray2):
     """
     ptarray format: [ [x1, x2, x3, x4], [y1, y2, y3, y4] ]
 
@@ -117,66 +98,62 @@ def intersect(ptarray1, ptarray2):
     else:
         return ((),)
 
+def intersectLogspirals(dst0, dst1, ang0, ang1, alpha):
+    '''
+    dst0, ang0: parameters of RIGHT spiral
+    dst1, ang1L parameters of LEFT spiral
+    '''
+    i_phi = (np.log(dst0/dst1)*np.tan(alpha) + ang0 + ang1) / 2
+    i_r1 = dst0*np.exp(-(i_phi-ang0) / np.tan(alpha))
+    i_r2 = dst1*np.exp(-(i_phi-ang1) / np.tan(-alpha))
+    diff = abs(i_r1-i_r2)
+    #assert diff < 0.000001 or diff == float("nan"), f"{str(i_r1)} {str(i_r2)}"
+
+    return (i_phi, i_r2)
 
 def intersect_curves(curve1, curve2, plotting=False, ax=None):
-    '''Формат возвращаемого словаря: {'curves': (curve1, curve2), 'position_type': ((xp, yp), "right"), 'dst': dst0}
+    '''
+    return: {'curves': (curve1, curve2), 'position_type': ((xp, yp), "right"), 'dst': dst0, 'ang': ang0}
 
-    флаг положения кривой "right"/"left" возвращается для curve1
-    
-    Эта функция представляет собой костыль, состоящий из костылей. это всё, что о ней надо знать.
-    Она возвращает координату самого удалённого от корня пересечения границ двух спиральных областей.
-    Иногда возвращает None. В каких именно случаях, неясно
+    "right"/"left" flag is tp for curve1
     '''
     assert curve1.root == curve2.root, "Roots have to be the same" 
     assert curve1.leaf != curve2.leaf, "Leaves must not be the same (we assume that a, b, th of curves are equal"
     root = curve1.root
-    # print("first pair")
-    intersection = intersect(curve1.crds["right_xy"], curve2.crds["left_xy"])
-    if len(intersection) == 2:
-        inter_crds0 = np.array(LineString(intersection).coords)
-        inter_crds0 = inter_crds0[inter_crds0 != curve1.root]
-        dst0, ang0 = dst_bearing(root, inter_crds0, True)
-    else:
-        inter_crds0 = np.array((None,None))
-        dst0 = float('inf')
 
-
-    # print("second pair")
-    intersection = intersect(curve1.crds["left_xy"], curve2.crds["right_xy"])
-
-    if len(intersection) == 2:
-        inter_crds1 = np.array(LineString(intersection).coords)
-        inter_crds1 = inter_crds1[inter_crds1 != curve1.root]
-        dst1, ang1 = dst_bearing(root, inter_crds1, True)
-    else:
-        inter_crds1 = np.array((None,None))
-        dst1 = float('inf')
-    
-    if (dst0 >= dst1) and dst0 != float('inf'):
-        inter_crds0 = tuple(inter_crds0.tolist())
-        try:
-            if plotting: ax.plot(inter_crds0[0], inter_crds0[1], 'or')
-        except AttributeError:
-            plt.plot(inter_crds0[0], inter_crds0[1], 'or')
-        return {'curves': (curve1, curve2), 'position_type': (inter_crds0, "right"), 'dst': dst0, 'ang': ang0}
-    elif (dst1 >= dst0) and dst1 != float('inf'):
-        inter_crds1 = tuple(inter_crds1.tolist())
-        try:
-            if plotting: ax.plot(inter_crds1[0], inter_crds1[1], 'or')
-        except AttributeError:
-            plt.plot(inter_crds1[0], inter_crds1[1], 'or')
-        return {'curves': (curve1, curve2), 'position_type': (inter_crds1, "left"), 'dst': dst1, 'ang': ang1}
-
-    if inter_crds0.any() == None:
-        if inter_crds1.any() == None:
-            warnings.warn(f"None interscetion returned for curves with leaves {curve1.leaf}, {curve2.leaf}")
-            return {'curves': (curve1, curve2), 'position_type': ((0,0), "left"), 'dst': 0, 'ang': 0}
+    # unpacking params
+    rights = (curve1.params["right"], curve2.params["right"])
+    lefts = (curve2.params["left"], curve1.params["left"])
+    dst = -float("inf")
+    ang = 0
+    exit_key = False
+    # calculating intersections
+    for params_r, params_l, tp in zip(rights, lefts, ["right", "left"]):
+        intersection = intersectLogspirals(params_r["dst"], params_l["dst"], params_r["ang"], params_l["ang"], params_r["alpha"])
+        if any(intersection) is float("nan"): continue
+        # check where is intersection
+        if intersection[0] > params_r["phi"][0] and intersection[0] < params_r["phi"][-1]:
+            r_out_key = True
         else:
-            inter_crds1 = tuple(inter_crds1.tolist())
-            return {'curves': (curve1, curve2), 'position_type': (inter_crds1, "left"), 'dst': dst1, 'ang': ang1}
-    else:
-        inter_crds0 = tuple(inter_crds0.tolist())
-        return {'curves': (curve1, curve2), 'position_type': (inter_crds0, "right"), 'dst': dst0, 'ang': ang0}
+            r_out_key = False
+
+        if intersection[0] < params_l["phi"][0] and intersection[0] > params_l["phi"][-1]:
+            l_out_key = True
+        else:
+            l_out_key = False
+
+        if r_out_key and l_out_key:
+            exit_key = True
+            if intersection[1] > dst:
+                ang, dst = intersection
+                out_tp = tp
+    
+    if not exit_key:
+        warnings.warn("Impossible intersection returned")
+        return {'curves': (curve1, curve2), 'position_type': ((0,0), "left"), 'dst': 0, 'ang': 0}
+    crds = tuple(rect_logspiral(dst, ang))
+    return {'curves': (curve1, curve2), 'position_type': (crds, out_tp), 'dst': dst, 'ang': ang}
+
 
 
 def rad_magic(ang):

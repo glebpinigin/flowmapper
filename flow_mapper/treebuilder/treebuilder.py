@@ -6,17 +6,19 @@ from .spiraltree import SpiralTree, connectionsToWkt
 
 import numpy as np
 from matplotlib import pyplot as plt
-from core.treebuilder.local_utils import tdraw
+from .local_utils import tdraw
 
-def buildTree(root=(0, 0), leaves=None, b=1.9):
+def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0):
     
     stacked = np.column_stack(leaves)
     
     extent = [(stacked[0].min(), stacked[1].min()), (stacked[0].max(), stacked[1].max())] # (lowerleft), (upperright)
     #print(extent, "\n")
     
-    never_activated = [NodeRegion(b=b, root=root, leaf=leaf) for leaf in leaves]
-    
+    never_activated = [NodeRegion(alpha=alpha, root=root, leaf=leaf) for leaf in leaves]
+    if logshow > 0:
+        tdraw(never_activated)
+        plt.show()
     queue = GeneralQueueHandler(never_activated) # assign NodeRegions for leaves as terminal events
     w = W()
     T = SpiralTree(root = root)
@@ -27,8 +29,9 @@ def buildTree(root=(0, 0), leaves=None, b=1.9):
         event(w, T, queue, extent=extent)
         # queue.delete(event)
         #print(len(queue))
-        # tdraw(list(T.nodes)[1:])
-        # plt.show()
+        if logshow > 1:
+            tdraw(list(T.nodes)[1:])
+            plt.show()
         # if len(queue) == 6:
         #     break
     connectionsToWkt(T)

@@ -1,6 +1,6 @@
-tests_ign.ipynb
+*.ipynb
 nothing.py
 __pycache__
-core/treebuilder/__pycache__
+flow_mapper/treebuilder/__pycache__
 figs
 *.code-workspace
