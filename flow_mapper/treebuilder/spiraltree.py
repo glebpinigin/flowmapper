@@ -1,13 +1,15 @@
 import networkx as nx
 from shapely.geometry import LineString
 import numpy as np
+from shapely import wkt
 
 class SpiralTree(nx.DiGraph):
     
-    def __init__(self, root):
+    def __init__(self, root, bias):
         super().__init__()
         self.root = root
         self.add_node(self.root)
+        self.bias = bias
     
     def insertLeaf(self, R):
         self.add_node(R)
@@ -30,9 +32,13 @@ class SpiralTree(nx.DiGraph):
         nx.set_edge_attributes(self, {(self.root, close_R): close_R.volume}, name="volume")
 
 def connectionsToWkt(T: SpiralTree):
+    biasX, biasY = T.bias
+    bias = np.array((biasX, biasY))
     for node1, node2, data in T.edges.data():
         if data["type"] == "root-connection":
-            crds = (node1, node2.leaf)
+            node1_crds = np.array(node1) + bias
+            leaf = np.array(node2.leaf) + bias
+            crds = (node1_crds, leaf)
             line = LineString(crds)
             wkt = line.wkt
             nx.set_edge_attributes(T, {(node1, node2): wkt}, name="Wkt")
@@ -40,7 +46,9 @@ def connectionsToWkt(T: SpiralTree):
             R = node2
             tp = R.tp
             crds = R.crds[f"{tp}_xy"]
-            line = LineString(np.column_stack(crds))
+            crds = np.column_stack(crds)
+            crds = crds + bias
+            line = LineString(crds)
             wkt = line.wkt
             nx.set_edge_attributes(T, {(node1, node2): wkt}, name="Wkt")
 
@@ -62,3 +70,8 @@ def connectionsToWkt(T: SpiralTree):
     #         x = node.leaf[0]
     #         y = node.leaf[1]
     #     nx.set_node_attributes(T, {node: (x, y)}, 'loc')
+
+def spiraltreeToPandas(T):
+    pdtb = nx.to_pandas_edgelist(T)
+    pdtb["Wkt"] = pdtb["Wkt"].apply(wkt.loads)
+    return pdtb
