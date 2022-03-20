@@ -20,9 +20,13 @@ class SpiralTree(nx.DiGraph):
           self.remove_edge(self.root, leaf_R)
           self.add_edge(steiner_R, leaf_R, type="st-connection", volume=leaf_R.volume)
     
-    def repairUnderlying(self, close_R, far_R):
-        self.remove_edge(self.root, far_R)
-        self.add_edge(close_R, far_R, type="false-connection", volume=far_R.volume)
+    def insertFalseNode(self, close_R, far_R1, far_R2):
+        self.remove_edge(self.root, far_R1)
+        self.remove_edge(self.root, far_R2)
+        self.add_node(close_R)
+        self.add_node(far_R1)
+        self.add_edge(close_R, far_R1, type="false-connection", volume=far_R1.volume)
+        self.add_edge(close_R, far_R2, type="false-connection", volume=far_R2.volume)
         nx.set_edge_attributes(self, {(self.root, close_R): close_R.volume}, name="volume")
 
 def connectionsToWkt(T: SpiralTree):

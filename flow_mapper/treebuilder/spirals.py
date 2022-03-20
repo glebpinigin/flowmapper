@@ -21,14 +21,14 @@ class NodeRegion():
         self.dst, self.ang = dst_bearing(self.root, self.leaf)
         self.ang = rad_back_magic(self.ang)
         self.params = None
+        self.deg_alpha = alpha
+        if alpha is None:
+                raise ValueError("params_r, params_l, alpha are None. Pass them correctly")
         if fake_params is not None:
             self._build_with_params(fake_params)
         else:
-            if alpha is None:
-                raise ValueError("params_r, params_l, alpha are None. Pass them correctly")
-            else:
-                self.alpha = np.radians(alpha)
-                self._build_raw()
+            self.alpha = np.radians(alpha)
+            self._build_raw()
         
         self.volume = volume
 
@@ -151,9 +151,11 @@ class NodeRegion():
         except AttributeError:
             return self.dst
 
-    def collapseRegion(self, root, leaf):
+    def collapseRegion(self, falseLeaf, dummypoint):
         self.tp = "right"
-        self.crds["right_xy"] = [(root[0], leaf[0]), (root[1], leaf[1])]
+        x = [falseLeaf[0], dummypoint[0], self.leaf[0]]
+        y = [falseLeaf[1], dummypoint[1], self.leaf[1]]
+        self.crds["right_xy"] = [x, y]
 
     def _build_with_params(self, fake_params):
         self.params = fake_params

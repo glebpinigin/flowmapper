@@ -1,3 +1,4 @@
+from lib2to3.pytree import Node
 import numpy as np
 from .spiraltree import SpiralTree
 from .wavefronts import W, WData
@@ -60,7 +61,7 @@ class Intersection:
 
 class TerminalEvent:
     
-    def __init__(self, R):
+    def __init__(self, R: NodeRegion):
         self.R = R # spiral region assigned with terminal event
     
     def __call__(self, w: W, T: SpiralTree, Q, *args, **kwargs):
@@ -82,12 +83,38 @@ class TerminalEvent:
             # check if t inside neighbour's region
             out_key = checkUnderlying(in_w.val, nb, kwargs["extent"])
             if out_key:
-                self.R.volume += nb.R.volume
-                T.repairUnderlying(in_w.val.R, nb.R)
+                out_volume = self.R.volume + nb.R.volume
                 w.delete(Q=Q, val=nb, chosen=None)
-                nb.R.collapseRegion(self.R.leaf, nb.R.leaf)
-                continue
-            # find intersections with neibourhood
+                w.delete(Q=Q, val=in_w.val, chosen=None)
+                new_phi = nb.R.ang
+                new_r = self.R.dst
+                leaf = tuple(rect_logspiral(new_r, new_phi))
+                new = NodeRegion(root=self.R.root, leaf=leaf, alpha=self.R.deg_alpha)
+                intersection = intersect_curves(self.R, new)
+
+                tp0 = intersection["position_type"][1]
+                tp1 = rl_inverse(tp0)
+                i_phi = intersection["ang"]
+                inter_crds = intersection["position_type"][0]
+                curve0, curve1 = intersection["curves"]
+                # calculating parameters for creating new NodeRegion for false-connection
+                tp_params0 = curve0.cropLowerPart(tp0, i_phi)
+                tp_params1 = curve1.cropLowerPart(tp1, i_phi)
+                fake_params={
+                    tp0: tp_params0,
+                    tp1: tp_params1
+                }
+                # creating NodeRegion for false-connection
+                falseR = NodeRegion(curve1.root, inter_crds, fake_params,alpha=curve1.deg_alpha, volume=out_volume)
+
+                T.insertFalseNode(falseR, self.R, nb.R)
+                self.R.cropUpperPart(tp0, i_phi)
+                nb.R.collapseRegion(inter_crds, leaf)
+                tp = TerminalEvent(falseR)
+                val = GeneralQueueData(tp)
+                Q.insert(val)
+                break
+            # find intersection with neighbour
             intersection = Intersection(in_w.val, nb)
             # print(intersection)
             # creating JPEvent from intersection
@@ -140,8 +167,7 @@ class JoinPointEvent:
         tp0 = intersection["position_type"][1]
         tp1 = rl_inverse(tp0)
         i_phi = intersection["ang"]
-        i_r = intersection["dst"]
-        inter_crds = tuple(rect_logspiral(i_r, i_phi))
+        inter_crds = intersection["position_type"][0]
         curve0, curve1 = intersection["curves"]
         # calculating parameters for creating new NodeRegion for SteinerNode
         tp_params0 = curve0.cropLowerPart(tp0, i_phi)
@@ -151,7 +177,7 @@ class JoinPointEvent:
             tp1: tp_params1
         }
         # creating NodeRegion for SteinerNode
-        steiner_region = NodeRegion(curve1.root, inter_crds, fake_params, volume=curve0.volume+curve1.volume)
+        steiner_region = NodeRegion(curve1.root, inter_crds, fake_params, alpha=curve1.deg_alpha, volume=curve0.volume+curve1.volume)
 
         self.R = steiner_region
     
@@ -169,7 +195,7 @@ class JoinPointEvent:
         T.insertSteinerNode(self.R, curve0, curve1)
         
         # remove JPEvent from queue
-        Q.delete_by_val(kwargs["abstnd"].val) # parent of node is itself!??
+        Q.delete_by_val(kwargs["abstnd"].val)
 
         for val in self.intersection.get_nds():
             w.delete(chosen=kwargs["abstnd"], Q=Q, val=val)
