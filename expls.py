@@ -73,7 +73,7 @@ def getLeaf(i):
     elif i == 7:
         leaves = []
         r = 100
-        phi = np.linspace(0, np.pi*2, 40)
+        phi = np.linspace(0, np.pi*2, 300)
         noise = np.random.rand(len(phi))*100
         r = r+noise
         x = r*np.cos(phi)

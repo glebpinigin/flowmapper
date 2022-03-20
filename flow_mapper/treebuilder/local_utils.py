@@ -6,7 +6,7 @@ import warnings
 def polar_logspiral(alpha, dst, ang, th, tp):
     
     sign = lrsign(tp)
-    phi = ang + np.tan(sign*alpha)*th
+    phi = ang + sign*np.tan(alpha)*th
     r = dst*(np.exp(-th))
     return  phi, r
 
@@ -63,6 +63,7 @@ def draw(curves, ax1=None, ax2=None, polar=True):
     for curve in curves:
 
         curve.plot(ax1=ax1, ax2=ax2, polar=polar)
+    return ax1, ax2
 
 
 def tdraw(curves, ax1=None, ax2=None, polar=True):
@@ -76,6 +77,7 @@ def tdraw(curves, ax1=None, ax2=None, polar=True):
             curve.tplot(ax1=ax1, ax2=ax2, polar=polar)
         except AttributeError:
             curve.plot(ax1=ax1, ax2=ax2, polar=polar)
+    return ax1, ax2
 
 
 def intersect_num(ptarray1, ptarray2):

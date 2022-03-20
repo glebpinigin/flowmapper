@@ -15,7 +15,7 @@ class GeneralQueueData(AbstractBSTData):
         return self.event.get_polar()["dst"]
     
     def __call__(self, *args, **kwargs):
-        print(f"\n  Event call at {self}, {self.event.R.leaf}")
+        # print(f"\n  Event call at {self}, {self.event.R.leaf}")
         self.event(*args, **kwargs)
 
 
@@ -64,7 +64,7 @@ class TerminalEvent:
         self.R = R # spiral region assigned with terminal event
     
     def __call__(self, w: W, T: SpiralTree, Q, *args, **kwargs):
-        print("\n    Terminal event call in")
+        # print("\n    Terminal event call in")
         T.insertLeaf(self.R)
 
         val = WData(self.R)
@@ -101,7 +101,7 @@ class TerminalEvent:
             in_w.val.track_jpEvent(jpEvent_node.val, nb)
             nb.track_jpEvent(jpEvent_node.val, in_w.val)
         Q.delete_by_val(kwargs["abstnd"].val)
-        print("    Terminal event call out\n")
+        # print("    Terminal event call out\n")
 
 
     def get_polar(self):
@@ -139,28 +139,28 @@ class JoinPointEvent:
         # unpacking intersection
         tp0 = intersection["position_type"][1]
         tp1 = rl_inverse(tp0)
-        ang = intersection["ang"]
-        dst = intersection["dst"]
-        inter_crds = tuple(rect_logspiral(dst, ang))
+        i_phi = intersection["ang"]
+        i_r = intersection["dst"]
+        inter_crds = tuple(rect_logspiral(i_r, i_phi))
         curve0, curve1 = intersection["curves"]
         # calculating parameters for creating new NodeRegion for SteinerNode
-        tp_params0 = curve0.cropLowerPart(tp0, ang)
-        tp_params1 = curve1.cropLowerPart(tp1, ang)
+        tp_params0 = curve0.cropLowerPart(tp0, i_phi)
+        tp_params1 = curve1.cropLowerPart(tp1, i_phi)
         fake_params={
             tp0: tp_params0,
             tp1: tp_params1
         }
         # creating NodeRegion for SteinerNode
-        steiner_region = NodeRegion(curve1.root, inter_crds, fake_params, alpha=curve0.alpha)
+        steiner_region = NodeRegion(curve1.root, inter_crds, fake_params, volume=curve0.volume+curve1.volume)
 
         self.R = steiner_region
     
     def __call__(self, w, T: SpiralTree, Q, *args, **kwargs):
-        print("\n    Join point event call in")
+        # print("\n    Join point event call in")
         # cut node curves
         intersection = self.intersection.get_intersection_pars()
         ang = intersection["ang"]
-        curve0, curve1 =intersection["curves"]
+        curve0, curve1 = intersection["curves"]
         tp0 = intersection["position_type"][1]
         tp1 = rl_inverse(tp0)
         curve0.cropUpperPart(tp=tp0, lowerlimit_phi=ang)
@@ -178,7 +178,7 @@ class JoinPointEvent:
         tp = TerminalEvent(self.R)
         val = GeneralQueueData(tp)
         Q.insert(val)
-        print("    Join point event call out\n")
+        # print("    Join point event call out\n")
     
     def get_polar(self):
         return {

@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from shapely.geometry import LineString
 
-from .local_utils import dst_bearing, polar_logspiral, rect_logspiral, lrsign
+from .local_utils import dst_bearing, polar_logspiral, rect_logspiral, lrsign, rad_back_magic
 
 
 
@@ -19,8 +19,7 @@ class NodeRegion():
         self.root = (0,0) if root is None else root
         self.leaf = (0,0) if leaf is None else leaf
         self.dst, self.ang = dst_bearing(self.root, self.leaf)
-        self.alpha = np.radians(alpha)
-        self.th = np.linspace(0, np.pi*(1/np.tan(self.alpha)), self.s)
+        self.ang = rad_back_magic(self.ang)
         self.params = None
         if fake_params is not None:
             self._build_with_params(fake_params)
@@ -28,6 +27,7 @@ class NodeRegion():
             if alpha is None:
                 raise ValueError("params_r, params_l, alpha are None. Pass them correctly")
             else:
+                self.alpha = np.radians(alpha)
                 self._build_raw()
         
         self.volume = volume
@@ -41,13 +41,17 @@ class NodeRegion():
         # Проверки и определения
         sign = lrsign(tp)
         self.tp = tp
-        thmax = (lowerlimit_phi-sign*self.ang) / np.tan(self.alpha)
-        self.th = np.linspace(0, thmax, self.s)
-        phi, r = polar_logspiral(self.alpha, self.params[tp]["dst"], self.params[tp]["ang"], self.th, tp)
+        alpha = self.params[tp]["alpha"]
+        dst = self.dst
+        ang = self.ang
+        #thmax = (upperlimit_phi - self.ang) / np.tan(sign*self.alpha)
+        thmin = (lowerlimit_phi - ang) / np.tan(sign*alpha)
+        self.th = np.linspace(0, thmin, self.s)
+        phi, r = polar_logspiral(alpha, dst, ang, self.th, tp)
         self.params = {
-            self.tp: {"alpha": self.alpha, 
-                    "dst": self.dst, 
-                    "ang": self.ang, 
+            self.tp: {"alpha": alpha, 
+                    "dst": dst, 
+                    "ang": ang, 
                     "phi": phi, 
                     "r": r}
         }
@@ -61,11 +65,11 @@ class NodeRegion():
         return: params, crds
         '''
         sign = lrsign(tp)
-
-        thmin = (upperlimit_phi- self.ang) / np.tan(sign*self.alpha)
-        th = np.linspace(thmin, np.pi*(1/np.tan(self.alpha)), self.s)
-        phi, r = polar_logspiral(self.alpha, self.dst, self.ang, th, tp)
-        tp_params = {"alpha": self.alpha, 
+        alpha = self.params[tp]["alpha"]
+        thmax = (upperlimit_phi - self.ang) / np.tan(sign*alpha)
+        th = np.linspace(thmax, np.pi*(1/np.tan(alpha)), self.s)
+        phi, r = polar_logspiral(alpha, self.dst, self.ang, th, tp)
+        tp_params = {"alpha": alpha, 
                     "dst": self.dst, 
                     "ang": self.ang, 
                     "phi": phi, 
@@ -159,6 +163,7 @@ class NodeRegion():
         }
 
     def _build_raw(self):
+        self.th = np.linspace(0, np.pi*(1/np.tan(self.alpha)), self.s)
         phir, rr = polar_logspiral(self.alpha, self.dst, self.ang, self.th, "right")
         params_r = {"alpha": self.alpha,
                     "dst": self.dst,
