@@ -89,6 +89,11 @@ class TerminalEvent:
                 new_phi = nb.R.ang
                 new_r = self.R.dst
                 leaf = tuple(rect_logspiral(new_r, new_phi))
+                if leaf == self.R.leaf:
+                    diff = nb.R.ang-self.R.ang
+                    sign = np.sign(diff)
+                    new_phi = self.R.ang + sign*0.03490658503988659/2
+                    leaf = tuple(rect_logspiral(new_r, new_phi))
                 new = NodeRegion(root=self.R.root, leaf=leaf, alpha=self.R.deg_alpha)
                 intersection = intersect_curves(self.R, new)
 
@@ -146,7 +151,10 @@ def checkUnderlying(close_val, far_val, extent) -> bool:
     y1 = np.append(y1, y12[-2::-1])
     # duilding checker line
     x2, y2 = close_val.R.leaf
-    x22, y22 = extent[1]
+    if far_val.R.leaf != extent[1]:
+        x22, y22 = extent[1]
+    else:
+        x22, y22 = extent[0]
     x2 = (x2, x22)
     y2 = (y2, y22)
     # intersecting

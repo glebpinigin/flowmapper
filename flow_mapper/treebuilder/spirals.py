@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from shapely.geometry import LineString
 
-from .local_utils import dst_bearing, polar_logspiral, rect_logspiral, lrsign, rad_back_magic
+from .local_utils import dst_bearing, polar_logspiral, rect_logspiral, lrsign, rad_back_magic, rad_magic
 
 
 
@@ -45,6 +45,10 @@ class NodeRegion():
         dst = self.dst
         ang = self.ang
         #thmax = (upperlimit_phi - self.ang) / np.tan(sign*self.alpha)
+        if lowerlimit_phi-ang > np.pi:
+            lowerlimit_phi = rad_magic(lowerlimit_phi)
+        elif ang-lowerlimit_phi > np.pi:
+            ang = rad_magic(ang)
         thmin = (lowerlimit_phi - ang) / np.tan(sign*alpha)
         self.th = np.linspace(0, thmin, self.s)
         phi, r = polar_logspiral(alpha, dst, ang, self.th, tp)
@@ -66,7 +70,12 @@ class NodeRegion():
         '''
         sign = lrsign(tp)
         alpha = self.params[tp]["alpha"]
-        thmax = (upperlimit_phi - self.ang) / np.tan(sign*alpha)
+        ang = self.ang
+        if upperlimit_phi-self.ang > np.pi:
+            upperlimit_phi = rad_magic(upperlimit_phi)
+        elif self.ang-upperlimit_phi > np.pi:
+            ang = rad_magic(self.ang)
+        thmax = (upperlimit_phi - ang) / np.tan(sign*alpha)
         th = np.linspace(thmax, np.pi*(1/np.tan(alpha)), self.s)
         phi, r = polar_logspiral(alpha, self.dst, self.ang, th, tp)
         tp_params = {"alpha": alpha, 
@@ -155,6 +164,10 @@ class NodeRegion():
         self.tp = "right"
         x = [falseLeaf[0], dummypoint[0], self.leaf[0]]
         y = [falseLeaf[1], dummypoint[1], self.leaf[1]]
+        self.params[self.tp] = {
+                    "phi": (), 
+                    "r": ()
+                    }
         self.crds["right_xy"] = [x, y]
 
     def _build_with_params(self, fake_params):

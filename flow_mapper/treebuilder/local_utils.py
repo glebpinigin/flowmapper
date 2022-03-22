@@ -71,7 +71,7 @@ def tdraw(curves, ax1=None, ax2=None, polar=True):
     fig = plt.figure(1,(8,4)) if ax1 is None else None
     ax1 = fig.add_subplot(121,polar=True) if ax1 is None else ax1
     ax2 = fig.add_subplot(122,polar=False) if ax2 is None else ax2
-
+    ax2.set_aspect(1)
     for curve in curves:
         try:
             curve.tplot(ax1=ax1, ax2=ax2, polar=polar)
@@ -103,11 +103,18 @@ def intersectLogspirals(dst0, dst1, ang0, ang1, alpha):
     dst0, ang0: parameters of RIGHT spiral
     dst1, ang1L parameters of LEFT spiral
     '''
-    i_phi = (np.log(dst0/dst1)*np.tan(alpha) + ang0 + ang1) / 2
+    if ang1-ang0 > np.pi:
+        ang1 = rad_magic(ang1)
+    elif ang0-ang1 > np.pi:
+        ang0 = rad_magic(ang0)
+    i_phi = (np.log(dst0/dst1)*np.tan(alpha) + ang1 + ang0) / 2
     i_r1 = dst0*np.exp(-(i_phi-ang0) / np.tan(alpha))
     i_r2 = dst1*np.exp(-(i_phi-ang1) / np.tan(-alpha))
-    diff = abs(i_r1-i_r2)
-    #assert diff < 0.000001 or diff == float("nan"), f"{str(i_r1)} {str(i_r2)}"
+    if i_r1 > dst0 or i_r2 > dst1:
+        i_phi -= np.pi
+        i_r1 = dst0*np.exp(-(i_phi-ang0) / np.tan(alpha))
+        i_r2 = dst1*np.exp(-(i_phi-ang1) / np.tan(-alpha))
+        i_r2 = min(i_r1, i_r2)
 
     return (i_phi, i_r2)
 
@@ -132,12 +139,12 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
         intersection = intersectLogspirals(params_r["dst"], params_l["dst"], params_r["ang"], params_l["ang"], params_r["alpha"])
         if any(intersection) is float("nan"): continue
         # check where is intersection
-        if intersection[0] > params_r["phi"][0] and intersection[0] < params_r["phi"][-1]:
+        if intersection[1] < params_r["r"][0] and intersection[1] > params_r["r"][-1]:
             r_out_key = True
         else:
             r_out_key = False
 
-        if intersection[0] < params_l["phi"][0] and intersection[0] > params_l["phi"][-1]:
+        if intersection[1] < params_l["r"][0] and intersection[1] > params_l["r"][-1]:
             l_out_key = True
         else:
             l_out_key = False
@@ -152,6 +159,7 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
         warnings.warn("Impossible intersection returned")
         return {'curves': (curve1, curve2), 'position_type': ((0,0), "left"), 'dst': 0, 'ang': 0}
     crds = tuple(rect_logspiral(dst, ang))
+    ang = rad_back_magic(ang)
     return {'curves': (curve1, curve2), 'position_type': (crds, out_tp), 'dst': dst, 'ang': ang}
 
 
@@ -161,7 +169,7 @@ def rad_magic(ang):
     Converting from radian to signed radian
     """
     if ang>np.pi:
-        return -(ang - np.pi)
+        return rad_magic(ang - np.pi*2)
     else:
         return ang
 
@@ -170,7 +178,7 @@ def rad_back_magic(ang):
     Converting from signed radian to radian
     """
     if ang<0:
-        return ang + np.pi*2
+        return rad_back_magic(ang + np.pi*2)
     else:
         return ang
 
