@@ -50,7 +50,7 @@ def output(T):
     
     out_lyr.commitChanges()
     out_lyr.updateExtents()
-    # QgsProject.instance().addMapLayer(out_lyr)
+    QgsProject.instance().addMapLayer(out_lyr)
     return out_lyr
 
 def write(out_lyr, path):
