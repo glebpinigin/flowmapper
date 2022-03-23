@@ -35,7 +35,7 @@ def input(iface):
 
 def output(T):
     pdtb = spiraltreeToPandas(T)
-    out_lyr = QgsVectorLayer("LineString?crs=EPSG:2136", "out_lines", "memory")
+    out_lyr = QgsVectorLayer("LineString?crs=EPSG:2163", "out_lines", "memory")
     out_lyr.startEditing()
     pr = out_lyr.dataProvider()
     pr.addAttributes([QgsField("type", QVariant.String),
