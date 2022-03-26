@@ -4,7 +4,7 @@ from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsCoor
 from qgis.PyQt.QtCore import QVariant
 
 def do(in_lyr, expression):
-    expression = '"name"!=\'Texas\''
+    expression = '"name"=\'Texas\''
     T = input(in_lyr, expression)
     out_lyr = output(T)
     return out_lyr
@@ -17,7 +17,7 @@ def input(in_lyr, expression):
     root_x = rootpt.x()
     root_y = rootpt.y()
     bias = (root_x, root_y)
-    in_lyr.selectByExpression(expression, QgsVectorLayer.SetSelection)
+    in_lyr.invertSelection()
     other = in_lyr.selectedFeatures()
 
     leaves = []
