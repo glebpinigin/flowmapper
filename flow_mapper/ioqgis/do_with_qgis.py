@@ -3,22 +3,22 @@ from ..treebuilder.spiraltree import connectionsToWkt, spiraltreeToPandas
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsCoordinateTransformContext, QgsVectorFileWriter, QgsProject
 from qgis.PyQt.QtCore import QVariant
 
-def do(iface, path):
-    T = input(iface)
+def do(in_lyr, expression):
+    expression = '"name"!=\'Texas\''
+    T = input(in_lyr, expression)
     out_lyr = output(T)
-    write(out_lyr, path)
+    return out_lyr
 
 
-def input(iface):
-    lyr = iface.activeLayer()
-    lyr.selectByExpression('"name"=\'Texas\'', QgsVectorLayer.SetSelection)
-    root = lyr.selectedFeatures()[0]
+def input(in_lyr, expression):
+    in_lyr.selectByExpression(expression, QgsVectorLayer.SetSelection)
+    root = in_lyr.selectedFeatures()[0]
     rootpt = root.geometry().asPoint()
     root_x = rootpt.x()
     root_y = rootpt.y()
     bias = (root_x, root_y)
-    lyr.selectByExpression('"name"!=\'Texas\'', QgsVectorLayer.SetSelection)
-    other = lyr.selectedFeatures()
+    in_lyr.selectByExpression(expression, QgsVectorLayer.SetSelection)
+    other = in_lyr.selectedFeatures()
 
     leaves = []
     for feature in other:
