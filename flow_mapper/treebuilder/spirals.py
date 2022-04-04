@@ -14,7 +14,7 @@ class NodeRegion():
 
     s = 100
 
-    def __init__(self, root=None, leaf=None, fake_params=None, crds=None, alpha=None, fake_uplim=None, volume=1):
+    def __init__(self, root=None, leaf=None, fake_params=None, crds=None, alpha=None, fake_uplim=None, volumes=None):
         """Constructor"""
         self.root = (0,0) if root is None else root
         self.leaf = (0,0) if leaf is None else leaf
@@ -30,7 +30,7 @@ class NodeRegion():
             self.alpha = np.radians(alpha)
             self._build_raw()
         
-        self.volume = volume
+        self.volumes = np.array([1]) if volumes is None else np.array(volumes)
 
 
 

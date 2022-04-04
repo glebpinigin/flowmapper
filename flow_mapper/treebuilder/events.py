@@ -83,7 +83,7 @@ class TerminalEvent:
             # check if t inside neighbour's region
             out_key = checkUnderlying(in_w.val, nb, kwargs["extent"])
             if out_key:
-                out_volume = self.R.volume + nb.R.volume
+                out_volumes = self.R.volumes + nb.R.volumes
                 w.delete(Q=Q, val=nb, chosen=None)
                 w.delete(Q=Q, val=in_w.val, chosen=None)
                 new_phi = nb.R.ang
@@ -110,7 +110,7 @@ class TerminalEvent:
                     tp1: tp_params1
                 }
                 # creating NodeRegion for false-connection
-                falseR = NodeRegion(curve1.root, inter_crds, fake_params,alpha=curve1.deg_alpha, volume=out_volume)
+                falseR = NodeRegion(curve1.root, inter_crds, fake_params,alpha=curve1.deg_alpha, volumes=out_volumes)
 
                 T.insertFalseNode(falseR, self.R, nb.R)
                 self.R.cropUpperPart(tp0, i_phi)
@@ -185,7 +185,7 @@ class JoinPointEvent:
             tp1: tp_params1
         }
         # creating NodeRegion for SteinerNode
-        steiner_region = NodeRegion(curve1.root, inter_crds, fake_params, alpha=curve1.deg_alpha, volume=curve0.volume+curve1.volume)
+        steiner_region = NodeRegion(curve1.root, inter_crds, fake_params, alpha=curve1.deg_alpha, volumes=curve0.volumes+curve1.volumes)
 
         self.R = steiner_region
     

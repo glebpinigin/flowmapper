@@ -5,31 +5,36 @@ from shapely import wkt
 
 class SpiralTree(nx.DiGraph):
     
-    def __init__(self, root, bias):
+    def __init__(self, root, bias, vol_attrs=None):
         super().__init__()
         self.root = root
         self.add_node(self.root)
         self.bias = bias
+        self.vol_attrs = ["count"] if vol_attrs is None else vol_attrs
     
     def insertLeaf(self, R):
         self.add_node(R)
-        self.add_edge(self.root, R, type="root-connection", volume=R.volume)
+        attr = {name: value for value, name in zip(R.volumes, self.vol_attrs)}
+        self.add_edge(self.root, R, type="root-connection", **attr)
     
     def insertSteinerNode(self, steiner_R=None, leaf1_R=None, leaf2_R=None):
         self.add_node(steiner_R)
         self.add_edge(self.root, steiner_R, type="root-connection")
         for leaf_R in (leaf1_R, leaf2_R):
           self.remove_edge(self.root, leaf_R)
-          self.add_edge(steiner_R, leaf_R, type="st-connection", volume=leaf_R.volume)
+          attr = {name: value for value, name in zip(leaf_R.volumes, self.vol_attrs)}
+          self.add_edge(steiner_R, leaf_R, type="st-connection", **attr)
     
     def insertFalseNode(self, close_R, far_R1, far_R2):
         self.remove_edge(self.root, far_R1)
         self.remove_edge(self.root, far_R2)
-        self.add_node(close_R)
+        self.insertLeaf(close_R)
         self.add_node(far_R1)
-        self.add_edge(close_R, far_R1, type="false-connection", volume=far_R1.volume)
-        self.add_edge(close_R, far_R2, type="false-connection", volume=far_R2.volume)
-        nx.set_edge_attributes(self, {(self.root, close_R): close_R.volume}, name="volume")
+        attr = {name: value for value, name in zip(far_R1.volumes, self.vol_attrs)}
+        self.add_edge(close_R, far_R1, type="false-connection", **attr)
+        attr = {name: value for value, name in zip(far_R2.volumes, self.vol_attrs)}
+        self.add_edge(close_R, far_R2, type="false-connection", **attr)
+        # nx.set_edge_attributes(self, {(self.root, close_R): list(close_R.volumes)}, name="volumes")
 
 def connectionsToWkt(T: SpiralTree):
     biasX, biasY = T.bias

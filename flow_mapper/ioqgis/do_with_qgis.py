@@ -27,14 +27,19 @@ def input(in_lyr, expression, vol_flds=None, alpha=25):
     other = in_lyr.selectedFeatures()
 
     leaves = []
+    volumes = []
     for feature in other:
         geom = feature.geometry()
         pt = geom.asPoint()
         x = pt.x() - root_x
         y = pt.y() - root_y
         leaves.append((x, y))
+        onevolume = []
+        for fld in vol_flds:
+            onevolume.append(feature[fld])
+        volumes.append(onevolume)
 
-    T = buildTree(leaves=leaves, bias=bias, alpha=alpha)
+    T = buildTree(leaves=leaves, bias=bias, alpha=alpha, vol_attrs=[vol_flds, volumes])
     connectionsToWkt(T)
     return T
 
