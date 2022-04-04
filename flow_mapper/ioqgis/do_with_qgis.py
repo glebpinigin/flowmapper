@@ -12,6 +12,11 @@ def do(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None):
             "OUTPUT": 'TEMPORARY_OUTPUT'
         })
         lyr = result['OUTPUT']
+    else:
+        lyr = processing.run("native:savefeatures", {
+            "INPUT": lyr,
+            "OUTPUT": 'TEMPORARY_OUTPUT'
+        })
     T = input(lyr, expr, vol_flds, alpha)
     out_lyr = output(T, namestring)
     return out_lyr
