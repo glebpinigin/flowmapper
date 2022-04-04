@@ -2,15 +2,22 @@ from ..treebuilder.treebuilder import buildTree
 from ..treebuilder.spiraltree import connectionsToWkt, spiraltreeToPandas
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsCoordinateTransformContext, QgsVectorFileWriter, QgsProject
 from qgis.PyQt.QtCore import QVariant
+from qgis import processing
 
-def do(in_lyr, expression):
-    expression = '"name"=\'Texas\''
-    T = input(in_lyr, expression)
-    out_lyr = output(T)
+def do(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None):
+    if lyr.sourceCrs() != proj:
+        result = processing.run("native:reprojectlayer", {
+            "INPUT": lyr,
+            "TARGET_CRS": proj,
+            "OUTPUT": 'TEMPORARY_OUTPUT'
+        })
+        lyr = result['OUTPUT']
+    T = input(lyr, expr, vol_flds, alpha)
+    out_lyr = output(T, namestring)
     return out_lyr
 
 
-def input(in_lyr, expression):
+def input(in_lyr, expression, vol_flds=None, alpha=25):
     in_lyr.selectByExpression(expression, QgsVectorLayer.SetSelection)
     root = in_lyr.selectedFeatures()[0]
     rootpt = root.geometry().asPoint()
@@ -28,14 +35,14 @@ def input(in_lyr, expression):
         y = pt.y() - root_y
         leaves.append((x, y))
 
-    T = buildTree(leaves=leaves, bias=bias)
+    T = buildTree(leaves=leaves, bias=bias, alpha=alpha)
     connectionsToWkt(T)
     return T
 
 
-def output(T):
+def output(T, namestring):
     pdtb = spiraltreeToPandas(T)
-    out_lyr = QgsVectorLayer("LineString?crs=EPSG:2163", "out_lines", "memory")
+    out_lyr = QgsVectorLayer("LineString?crs=EPSG:2163", namestring, "memory")
     out_lyr.startEditing()
     pr = out_lyr.dataProvider()
     pr.addAttributes([QgsField("type", QVariant.String),
