@@ -5,18 +5,12 @@ from qgis.PyQt.QtCore import QVariant
 from qgis import processing
 
 def do(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None):
-    if lyr.sourceCrs() != proj:
-        result = processing.run("native:reprojectlayer", {
-            "INPUT": lyr,
-            "TARGET_CRS": proj,
-            "OUTPUT": 'TEMPORARY_OUTPUT'
-        })
-        lyr = result['OUTPUT']
-    else:
-        lyr = processing.run("native:savefeatures", {
-            "INPUT": lyr,
-            "OUTPUT": 'TEMPORARY_OUTPUT'
-        })["OUTPUT"]
+    result = processing.run("native:reprojectlayer", {
+        "INPUT": lyr,
+        "TARGET_CRS": proj,
+        "OUTPUT": 'TEMPORARY_OUTPUT'
+    })
+    lyr = result['OUTPUT']
     T = input(lyr, expr, vol_flds, alpha)
     out_lyr = output(T, namestring)
     return out_lyr
