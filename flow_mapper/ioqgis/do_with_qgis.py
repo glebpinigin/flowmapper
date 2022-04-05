@@ -12,7 +12,7 @@ def do(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None):
     })
     lyr = result['OUTPUT']
     T = input(lyr, expr, vol_flds, alpha)
-    out_lyr = output(T, namestring)
+    out_lyr = output(T, namestring, vol_flds)
     return out_lyr
 
 
@@ -44,7 +44,7 @@ def input(in_lyr, expression, vol_flds=None, alpha=25):
     return T
 
 
-def output(T, namestring):
+def output(T, namestring, vol_flds):
     pdtb = spiraltreeToPandas(T)
     out_lyr = QgsVectorLayer("LineString?crs=EPSG:2163", namestring, "memory")
     out_lyr.startEditing()
@@ -56,7 +56,10 @@ def output(T, namestring):
     for index, row in pdtb.iterrows():
         fet = QgsFeature()
         fet.setGeometry(QgsGeometry.fromWkt(str(row["Wkt"])))
-        fet.setAttributes([row["type"], row["volume"]])
+        attrs = [row["type"]]
+        for fld in vol_flds:
+            attrs.append(row[fld])
+        fet.setAttributes(attrs)
         pr.addFeatures([fet])
     
     out_lyr.commitChanges()
