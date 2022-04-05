@@ -49,8 +49,7 @@ def output(T, namestring, vol_flds):
     out_lyr = QgsVectorLayer("LineString?crs=EPSG:2163", namestring, "memory")
     out_lyr.startEditing()
     pr = out_lyr.dataProvider()
-    pr.addAttributes([QgsField("type", QVariant.String),
-                    QgsField("volume", QVariant.Double)])
+    pr.addAttributes([QgsField("type", QVariant.String)] + [QgsField(f"{name}", QVariant.Double) for name in vol_flds])
     out_lyr.updateFields()
 
     for index, row in pdtb.iterrows():
