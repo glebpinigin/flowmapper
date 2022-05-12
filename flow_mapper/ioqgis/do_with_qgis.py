@@ -4,19 +4,19 @@ from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsCoor
 from qgis.PyQt.QtCore import QVariant
 from qgis import processing
 
-def do(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None):
+def do(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None, stop_dst=0):
     result = processing.run("native:reprojectlayer", {
         "INPUT": lyr,
         "TARGET_CRS": proj,
         "OUTPUT": 'TEMPORARY_OUTPUT'
     })
     lyr = result['OUTPUT']
-    T = input(lyr, expr, vol_flds, alpha)
+    T = input(lyr, expr, vol_flds, alpha, stop_dst)
     out_lyr = output(T, namestring, vol_flds, proj)
     return out_lyr
 
 
-def input(in_lyr, expression, vol_flds=None, alpha=25):
+def input(in_lyr, expression, vol_flds=None, alpha=25, stop_dst=0):
     in_lyr.selectByExpression(expression, QgsVectorLayer.SetSelection)
     root = in_lyr.selectedFeatures()[0]
     rootpt = root.geometry().asPoint()
@@ -39,7 +39,7 @@ def input(in_lyr, expression, vol_flds=None, alpha=25):
             onevolume.append(feature[fld])
         volumes.append(onevolume)
 
-    T = buildTree(leaves=leaves, bias=bias, alpha=alpha, vol_attrs=[vol_flds, volumes])
+    T = buildTree(leaves=leaves, bias=bias, alpha=alpha, vol_attrs=[vol_flds, volumes], stop_dst=stop_dst)
     connectionsToWkt(T)
     return T
 

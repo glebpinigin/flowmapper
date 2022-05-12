@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from .local_utils import tdraw
 
-def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_attrs=None):
+def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_attrs=None, stop_dst=0):
     
     stacked = np.column_stack(leaves)
     
@@ -21,7 +21,7 @@ def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_att
     if logshow > 0:
         tdraw(never_activated)
         plt.show()
-    queue = GeneralQueueHandler(never_activated) # assign NodeRegions for leaves as terminal events
+    queue = GeneralQueueHandler(never_activated, stop_dst=stop_dst) # assign NodeRegions for leaves as terminal events
     w = W()
     if vol_attrs is not None:
         T = SpiralTree(root=root, bias=bias, vol_attrs=vol_attrs[0])

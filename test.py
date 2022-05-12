@@ -21,7 +21,7 @@ for i in range(r):
     #leaves = [(-20, 5), (-21, -7)] 
     begin_time = datetime.datetime.now()
     # try:
-    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0)
+    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0, stop_dst=500000)
     times = np.append(times, datetime.datetime.now() - begin_time)
     # except Exception as e:
     #     errs += 1
