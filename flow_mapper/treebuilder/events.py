@@ -81,19 +81,33 @@ class TerminalEvent:
                 # print("Found intersected")
                 continue
             # check if t inside neighbour's region
-            out_key = checkUnderlying(in_w.val, nb, kwargs["extent"])
+            # find intersection with neighbour
+            # TODO: убрать костыли, убрать лишнюю функцию checkUnderlying
+            try:
+                intersection = Intersection(in_w.val, nb)
+                out_key = False
+            except Warning:
+                out_key = True
+            #out_key = checkUnderlying(in_w.val, nb, kwargs["extent"])
             if out_key:
                 out_volumes = self.R.volumes + nb.R.volumes
                 w.delete(Q=Q, val=nb, chosen=None)
                 w.delete(Q=Q, val=in_w.val, chosen=None)
-                new_phi = nb.R.ang
+                mid_ang = nb.R.ang
                 new_r = self.R.dst
+                # unpack right spiral params from nb.R
+                alpha, dst, ang, _, _ = nb.R.params["right"].values()
+                new_phi_r = -np.log(new_r/dst)*np.tan(alpha) + ang
+                # unpack left spiral params from nb.R
+                alpha, dst, ang, _, _ = nb.R.params["left"].values()
+                new_phi_l = np.log(new_r/dst)*np.tan(alpha) + ang
+                q = (mid_ang - new_phi_l)/2
+                q1 = mid_ang - q
+                q3 = mid_ang + q
+                quartiles = {self.R.ang-i: i for i in [new_phi_l, q1, mid_ang, q3, new_phi_r]}
+                quartiles.pop(min(quartiles.keys(), key=lambda x: abs(x)))
+                new_phi = quartiles[min(quartiles.keys(), key=lambda x: abs(x))]
                 leaf = tuple(rect_logspiral(new_r, new_phi))
-                if leaf == self.R.leaf:
-                    diff = nb.R.ang-self.R.ang
-                    sign = np.sign(diff)
-                    new_phi = self.R.ang + sign*0.03490658503988659/2
-                    leaf = tuple(rect_logspiral(new_r, new_phi))
                 new = NodeRegion(root=self.R.root, leaf=leaf, alpha=self.R.deg_alpha)
                 intersection = intersect_curves(self.R, new)
 
@@ -119,8 +133,7 @@ class TerminalEvent:
                 val = GeneralQueueData(tp)
                 Q.insert(val)
                 break
-            # find intersection with neighbour
-            intersection = Intersection(in_w.val, nb)
+            
             # print(intersection)
             # creating JPEvent from intersection
             new_jp_event = JoinPointEvent(intersection)

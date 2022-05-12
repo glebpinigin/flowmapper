@@ -156,7 +156,7 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
                 out_tp = tp
     
     if not exit_key:
-        warnings.warn("Impossible intersection returned")
+        raise Warning("Impossible intersection returned")
         return {'curves': (curve1, curve2), 'position_type': ((0,0), "left"), 'dst': 0, 'ang': 0}
     crds = tuple(rect_logspiral(dst, ang))
     ang = rad_back_magic(ang)

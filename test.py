@@ -20,12 +20,12 @@ for i in range(r):
     #leaves.append((-25.11407890334805, -153.18910434475615))
     #leaves = [(-20, 5), (-21, -7)] 
     begin_time = datetime.datetime.now()
-    try:
-        T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0)
-        times = np.append(times, datetime.datetime.now() - begin_time)
-    except Exception:
-        errs += 1
-        print(f"Error at {i}")
+    # try:
+    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0)
+    times = np.append(times, datetime.datetime.now() - begin_time)
+    # except Exception as e:
+    #     errs += 1
+    #     print(f"Error {e} at {i}")
     tdraw(list(T.nodes)[1:])
     plt.show()
     # plt.savefig(f"../figs/40/fig{i}.png")
