@@ -52,34 +52,6 @@ def rl_inverse(key):
         return 'right'
 
 
-
-
-def draw(curves, ax1=None, ax2=None, polar=True):
-    """Plotting set of curves"""
-    fig = plt.figure(1,(8,4)) if ax1 is None else None
-    ax1 = fig.add_subplot(221,polar=True) if ax1 is None else ax1
-    ax2 = fig.add_subplot(222,polar=False) if ax2 is None else ax2
-    
-    for curve in curves:
-
-        curve.plot(ax1=ax1, ax2=ax2, polar=polar)
-    return ax1, ax2
-
-
-def tdraw(curves, ax1=None, ax2=None, polar=True):
-    """Plotting set of curves"""
-    fig = plt.figure(1,(8,4)) if ax1 is None else None
-    ax1 = fig.add_subplot(121,polar=True) if ax1 is None else ax1
-    ax2 = fig.add_subplot(122,polar=False) if ax2 is None else ax2
-    ax2.set_aspect(1)
-    for curve in curves:
-        try:
-            curve.tplot(ax1=ax1, ax2=ax2, polar=polar)
-        except AttributeError:
-            curve.plot(ax1=ax1, ax2=ax2, polar=polar)
-    return ax1, ax2
-
-
 def intersect_num(ptarray1, ptarray2):
     """
     ptarray format: [ [x1, x2, x3, x4], [y1, y2, y3, y4] ]

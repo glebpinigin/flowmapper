@@ -6,7 +6,7 @@ from .spiraltree import SpiralTree, connectionsToWkt
 
 import numpy as np
 from matplotlib import pyplot as plt
-from .local_utils import tdraw
+from .plotting_utils import tdraw
 
 def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_attrs=None, stop_dst=0):
     
