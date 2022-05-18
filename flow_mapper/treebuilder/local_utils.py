@@ -39,8 +39,6 @@ def dst_bearing(a, b):
     return dst, ang
 
 
-
-
 def rl_inverse(key):
     '''
     Inverts value of key between left and right
@@ -70,6 +68,7 @@ def intersect_num(ptarray1, ptarray2):
     else:
         return ((),)
 
+
 def intersectLogspirals(dst0, dst1, ang0, ang1, alpha):
     '''
     dst0, ang0: parameters of RIGHT spiral
@@ -89,6 +88,7 @@ def intersectLogspirals(dst0, dst1, ang0, ang1, alpha):
         i_r2 = min(i_r1, i_r2)
 
     return (i_phi, i_r2)
+
 
 def intersect_curves(curve1, curve2, plotting=False, ax=None):
     '''
@@ -111,12 +111,12 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
         intersection = intersectLogspirals(params_r["dst"], params_l["dst"], params_r["ang"], params_l["ang"], params_r["alpha"])
         if any(intersection) is float("nan"): continue
         # check where is intersection
-        if intersection[1] < params_r["r"][0] and intersection[1] > params_r["r"][-1]:
+        if intersection[1] < params_r["r_domain"][0] and intersection[1] > params_r["r_domain"][1]:
             r_out_key = True
         else:
             r_out_key = False
 
-        if intersection[1] < params_l["r"][0] and intersection[1] > params_l["r"][-1]:
+        if intersection[1] < params_l["r_domain"][0] and intersection[1] > params_l["r_domain"][1]:
             l_out_key = True
         else:
             l_out_key = False
@@ -135,7 +135,6 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
     return {'curves': (curve1, curve2), 'position_type': (crds, out_tp), 'dst': dst, 'ang': ang}
 
 
-
 def rad_magic(ang):
     """
     Converting from radian to signed radian
@@ -144,6 +143,7 @@ def rad_magic(ang):
         return rad_magic(ang - np.pi*2)
     else:
         return ang
+
 
 def rad_back_magic(ang):
     """

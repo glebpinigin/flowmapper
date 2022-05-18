@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 import flow_mapper.treebuilder.treebuilder as tbldr
-from flow_mapper.treebuilder.local_utils import tdraw
+from flow_mapper.treebuilder.plotting_utils import tdraw
 from expls import *
 import numpy as np
 import datetime
@@ -21,15 +21,15 @@ for i in range(r):
     #leaves = [(-20, 5), (-21, -7)] 
     begin_time = datetime.datetime.now()
     # try:
-    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0, stop_dst=1000000)
+    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0, stop_dst=1000)
     times = np.append(times, datetime.datetime.now() - begin_time)
     # except Exception as e:
     #     errs += 1
     #     print(f"Error {e} at {i}")
-    tdraw(list(T.nodes)[1:])
-    plt.show()
+    # tdraw(list(T.nodes)[1:])
+    # plt.show()
     # plt.savefig(f"../figs/40/fig{i}.png")
-    plt.clf()
+    # plt.clf()
 
 print(times)
 print(times.mean())

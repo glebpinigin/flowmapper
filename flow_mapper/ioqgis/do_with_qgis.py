@@ -1,6 +1,6 @@
 from ..treebuilder.treebuilder import buildTree
 from ..treebuilder.spiraltree import connectionsToWkt, spiraltreeToPandas
-from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsCoordinateTransformContext, QgsVectorFileWriter, QgsProject
+from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsProject
 from qgis.PyQt.QtCore import QVariant
 from qgis import processing
 

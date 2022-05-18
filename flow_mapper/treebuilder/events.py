@@ -130,9 +130,8 @@ class TerminalEvent:
                 # creating NodeRegion for false-connection
                 falseR = NodeRegion(curve1.root, inter_crds, fake_params,alpha=curve1.deg_alpha, volumes=out_volumes)
 
-                T.insertFalseNode(falseR, self.R, nb.R)
+                T.insertFalseNode(falseR, self.R, nb.R, collapse_args = (inter_crds, leaf))
                 self.R.cropUpperPart(tp0, i_phi)
-                nb.R.collapseRegion(inter_crds, leaf)
                 tp = TerminalEvent(falseR, T)
                 val = GeneralQueueData(tp)
                 Q.insert(val)
