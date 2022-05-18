@@ -33,7 +33,7 @@ class NodeRegion():
         sign = lrsign(tp)
         self.tp = tp
         alpha = self.params[tp]["alpha"]
-        th_domain = self.params[tp]["th_domain"]
+        phi_domain = self.params[tp]["phi_domain"]
         dst = self.dst
         ang = self.ang
 
@@ -42,13 +42,13 @@ class NodeRegion():
         elif ang-lowerlimit_phi > np.pi:
             ang = rad_magic(ang)
         thmin = (lowerlimit_phi - ang) / np.tan(sign*alpha)
-        th_domain = np.array([th_domain[0], thmin])
-        _, r_domain = polar_logspiral(alpha, dst, ang, th_domain, tp)
+        th_domain = np.array([phi_domain[0], thmin])
+        phi_domain, r_domain = polar_logspiral(alpha, dst, ang, th_domain, tp)
         self.params = {
             self.tp: {"alpha": alpha, 
                     "dst": dst, 
                     "ang": ang,
-                    "th_domain": th_domain,
+                    "phi_domain": phi_domain,
                     "r_domain": r_domain}
         }
     
@@ -60,7 +60,7 @@ class NodeRegion():
         '''
         sign = lrsign(tp)
         alpha = self.params[tp]["alpha"]
-        th_domain = self.params[tp]["th_domain"]
+        phi_domain = self.params[tp]["phi_domain"]
         ang = self.ang
         dst = self.dst
         
@@ -69,12 +69,12 @@ class NodeRegion():
         elif self.ang-upperlimit_phi > np.pi:
             ang = rad_magic(self.ang)
         thmax = (upperlimit_phi - ang) / np.tan(sign*alpha)
-        th_domain = np.array([thmax, th_domain[1]])
-        _, r_domain = polar_logspiral(alpha, dst, ang, th_domain, tp)
+        th_domain = np.array([thmax, phi_domain[1]])
+        phi_domain, r_domain = polar_logspiral(alpha, dst, ang, th_domain, tp)
         tp_params = {"alpha": alpha, 
                     "dst": dst, 
                     "ang": ang,
-                    "th_domain": th_domain,
+                    "phi_domain": phi_domain,
                     "r_domain": r_domain
                     }
         return tp_params
@@ -104,8 +104,8 @@ class NodeRegion():
     def _build_raw(self):
         alpha = np.radians(self.deg_alpha)
         th_domain = np.array([0, np.pi/np.tan(alpha)])
-        _, r_domain = polar_logspiral(alpha, self.dst, self.ang, th_domain, "right")
-        params = {"alpha": alpha, "dst": self.dst, "ang": self.ang, "th_domain": th_domain, "r_domain": r_domain}
+        phi_domain, r_domain = polar_logspiral(alpha, self.dst, self.ang, th_domain, "right")
+        params = {"alpha": alpha, "dst": self.dst, "ang": self.ang, "phi_domain": phi_domain, "r_domain": r_domain}
         self.params = {
             "right": params,
             "left": params

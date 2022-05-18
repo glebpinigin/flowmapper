@@ -1,12 +1,12 @@
 from multiprocessing import connection
-from .events import GeneralQueueHandler
-from .wavefronts import W
-from .spirals import NodeRegion
-from .spiraltree import SpiralTree, connectionsToWkt
+from .distributor.events import GeneralQueueHandler
+from .distributor.wavefronts import W
+from .distributor.spirals import NodeRegion
+from .distributor.spiraltree import SpiralTree, connectionsToWkt
 
 import numpy as np
 from matplotlib import pyplot as plt
-from .plotting_utils import tdraw
+from .plotting import tdraw
 
 def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_attrs=None, stop_dst=0):
     
