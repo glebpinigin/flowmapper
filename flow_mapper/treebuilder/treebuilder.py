@@ -21,12 +21,15 @@ def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_att
     if logshow > 0:
         tdraw(never_activated)
         plt.show()
-    queue = GeneralQueueHandler(never_activated, stop_dst=stop_dst) # assign NodeRegions for leaves as terminal events
-    w = W()
+    
     if vol_attrs is not None:
         T = SpiralTree(root=root, bias=bias, vol_attrs=vol_attrs[0])
     else:
         T = SpiralTree(root=root, bias=bias)
+    
+    queue = GeneralQueueHandler(never_activated, T, stop_dst=stop_dst) # assign NodeRegions for leaves as terminal events
+    w = W()
+
     for event in queue:
         # if event.val.unpack() == 73.95291165118905:
         #     tdraw(list(T.nodes)[1:])

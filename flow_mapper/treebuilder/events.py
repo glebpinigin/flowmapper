@@ -1,4 +1,5 @@
 from lib2to3.pytree import Node
+from urllib.parse import _SplitResultBase
 import numpy as np
 from .spiraltree import SpiralTree
 from .wavefronts import W, WData
@@ -22,10 +23,10 @@ class GeneralQueueData(AbstractBSTData):
 
 class GeneralQueueHandler(AbstractSearchTree):
     
-    def __init__(self, init_nodes, stop_dst=0): # assign NodeRegions for leaves as terminal events
+    def __init__(self, init_nodes, T: SpiralTree, stop_dst=0): # assign NodeRegions for leaves as terminal events
         super().__init__()
         for node in init_nodes:
-            tp = TerminalEvent(node)
+            tp = TerminalEvent(node, T)
             val = GeneralQueueData(tp)
             self.insert(val)
         self.stop_dst = stop_dst
@@ -64,12 +65,12 @@ class Intersection:
 
 class TerminalEvent:
     
-    def __init__(self, R: NodeRegion):
+    def __init__(self, R: NodeRegion, T: SpiralTree):
         self.R = R # spiral region assigned with terminal event
+        T.insertLeaf(self.R)
     
     def __call__(self, w: W, T: SpiralTree, Q, *args, **kwargs):
         # print("\n    Terminal event call in")
-        T.insertLeaf(self.R)
 
         val = WData(self.R)
         in_w = w.insert(val)
@@ -132,7 +133,7 @@ class TerminalEvent:
                 T.insertFalseNode(falseR, self.R, nb.R)
                 self.R.cropUpperPart(tp0, i_phi)
                 nb.R.collapseRegion(inter_crds, leaf)
-                tp = TerminalEvent(falseR)
+                tp = TerminalEvent(falseR, T)
                 val = GeneralQueueData(tp)
                 Q.insert(val)
                 break
@@ -225,7 +226,7 @@ class JoinPointEvent:
             w.delete(chosen=kwargs["abstnd"], Q=Q, val=val)
         
         # add TerminalEvent to queue
-        tp = TerminalEvent(self.R)
+        tp = TerminalEvent(self.R, T)
         val = GeneralQueueData(tp)
         Q.insert(val)
         # print("    Join point event call out\n")
