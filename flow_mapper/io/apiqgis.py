@@ -6,6 +6,7 @@ from shapely.geometry import LineString
 import numpy as np
 
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsProject
+from qgis.core import qgsfunction
 from qgis.PyQt.QtCore import QVariant
 from qgis import processing
 
@@ -88,7 +89,7 @@ def splineLine(ptnum, feature, parent):
     """ Returns geometry interpolated with spline """
     linestr = feature.geometry().asWkt()
     line = wkt.loads(linestr)
-    new_line = LineString(ptsToSpline(np.array(line.coords), ptnum))
+    new_line = LineString(ptsToSpline(np.array(line.coords).T, ptnum))
     wkb = new_line.wkb
     geometry = QgsGeometry().fromWkb(wkb)
     return geometry
