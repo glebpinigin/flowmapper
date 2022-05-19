@@ -1,6 +1,10 @@
 from ..core.treebuilder import buildTree
 from ..core.distributor.spiraltree import connectionsToWkt, spiraltreeToPandas
-from ..core.drawer.pptr import ppTr
+from ..core.drawer.pptr import ppTr, ptsToSpline
+from shapely import wkt
+from shapely.geometry import LineString
+import numpy as np
+
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsProject
 from qgis.PyQt.QtCore import QVariant
 from qgis import processing
@@ -67,6 +71,7 @@ def output(T, namestring, vol_flds, proj):
     QgsProject.instance().addMapLayer(out_lyr)
     return out_lyr
 
+
 def write(out_lyr, path):
     options = QgsVectorFileWriter.SaveVectorOptions()
     options.driverName = "ESRI Shapefile"
@@ -76,3 +81,14 @@ def write(out_lyr, path):
         print("success again!")
     else:
         print(error)
+
+
+@qgsfunction(args='auto', group='Custom')
+def splineLine(ptnum, feature, parent):
+    """ Returns geometry interpolated with spline """
+    linestr = feature.geometry().asWkt()
+    line = wkt.loads(linestr)
+    new_line = LineString(ptsToSpline(np.array(line.coords), ptnum))
+    wkb = new_line.wkb
+    geometry = QgsGeometry().fromWkb(wkb)
+    return geometry
