@@ -3,7 +3,7 @@ from urllib.parse import _SplitResultBase
 import numpy as np
 from .spiraltree import SpiralTree
 from .wavefronts import W, WData
-from .local_utils import intersect_curves, rl_inverse, intersect_num, rect_logspiral
+from .local_utils import intersect_curves, rl_inverse, intersect_num, rect_logspiral, calcR
 from .spirals import NodeRegion
 from .abst import AbstractSearchTree, AbstractBSTData
 
@@ -130,7 +130,17 @@ class TerminalEvent:
                 # creating NodeRegion for false-connection
                 falseR = NodeRegion(curve1.root, inter_crds, fake_params,alpha=curve1.deg_alpha, volumes=out_volumes)
 
-                T.insertFalseNode(falseR, self.R, nb.R, collapse_args = (inter_crds, leaf))
+                # need another point for splines
+                if new_phi < mid_ang:
+                    new_phi_2 = new_phi + (mid_ang-new_phi)/2
+                    new_r_2 = calcR(new_phi_2, nb.R.params, "left")
+                else:
+                    new_phi_2 = mid_ang + (new_phi-mid_ang)/2
+                    new_r_2 = calcR(new_phi_2, nb.R.params, "right")
+                
+                addtn = rect_logspiral(new_r_2, new_phi_2)
+
+                T.insertFalseNode(falseR, self.R, nb.R, collapse_args = (inter_crds, leaf, addtn))
                 self.R.cropUpperPart(tp0, i_phi)
                 tp = TerminalEvent(falseR, T)
                 val = GeneralQueueData(tp)

@@ -84,8 +84,11 @@ def ppTr(T: nx.DiGraph, ptnum=4):
 def ptsToSpline(pts, ptnum=20, kind="cubic"):
     """
     Return spline interpolated array of points
-    pts: stacked array of points ( (x1 y1) (x2 y2) )
+    pts: [x, y]
     """
+    if len(pts) == 2:
+        return pts
+    
     # Linear length along the line:
     distance = np.cumsum( np.sqrt(np.sum( np.diff(pts, axis=0)**2, axis=1 )) )
     distance = np.insert(distance, 0, 0)/distance[-1]

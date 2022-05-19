@@ -84,12 +84,14 @@ def write(out_lyr, path):
         print(error)
 
 
-@qgsfunction(args='auto', group='Custom')
-def splineLine(ptnum, feature, parent):
+@qgsfunction(args='auto', group='Custom', usesGeometry=True)
+def splineLine(ptsnum, feature, parent):
     """ Returns geometry interpolated with spline """
     linestr = feature.geometry().asWkt()
     line = wkt.loads(linestr)
-    new_line = LineString(ptsToSpline(np.array(line.coords).T, ptnum))
-    wkb = new_line.wkb
-    geometry = QgsGeometry().fromWkb(wkb)
+    pts = np.array(line.coords)
+    pts = ptsToSpline(pts, ptsnum)
+    new_line = LineString(pts)
+    linestr = new_line.wkt
+    geometry = QgsGeometry().fromWkt(linestr)
     return geometry

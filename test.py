@@ -16,7 +16,7 @@ print("Imports succesfull\n")
 r = 1
 errs = 0
 for i in range(r):
-    leaves = getLeaf(7)
+    leaves = getLeaf(8)
     # leaves = list(filter(lambda x: x[0] > 0, leaves))
     #leaves.append((-25.11407890334805, -153.18910434475615))
     #leaves = [(-20, 5), (-21, -7)] 
@@ -39,7 +39,7 @@ print(f"{errs} errors / {errs/r*100}%")
 pptr.ppTr(T, 4)
 plotting.drawTree(T)
 # pptr.run()
-# plt.show()
+plt.show()
 
 save = input("Save? y/n ")
 save = True if save == "y" else False

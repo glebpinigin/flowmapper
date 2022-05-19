@@ -91,10 +91,13 @@ class NodeRegion():
             return self.dst
 
 
-    def collapseRegion(self, falseLeaf, dummypoint):
+    def collapseRegion(self, inter_crds, leaf, addtn):
         self.tp = "right"
-        x = [self.leaf[0], dummypoint[0], falseLeaf[0]]
-        y = [self.leaf[1], dummypoint[1], falseLeaf[1]]
+        x = []
+        y = []
+        for pt in (inter_crds, leaf, addtn, self.leaf):
+            x.append(pt[0])
+            y.append(pt[1])
         self.params[self.tp] = {}
         self.crds = [x, y]
 
