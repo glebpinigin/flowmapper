@@ -1,12 +1,13 @@
 from matplotlib import pyplot as plt
 import flow_mapper.core.treebuilder as tbldr
-from flow_mapper.core.plotting import tdraw
+from flow_mapper.core import plotting
 from expls import *
 import numpy as np
 import datetime
 import networkx as nx
 import momepy
 from shapely import wkt
+from flow_mapper.core.drawer import pptr
 
 times = np.array([])
 
@@ -15,13 +16,13 @@ print("Imports succesfull\n")
 r = 1
 errs = 0
 for i in range(r):
-    leaves = getLeaf(8)
+    leaves = getLeaf(7)
     # leaves = list(filter(lambda x: x[0] > 0, leaves))
     #leaves.append((-25.11407890334805, -153.18910434475615))
     #leaves = [(-20, 5), (-21, -7)] 
     begin_time = datetime.datetime.now()
     # try:
-    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0, stop_dst=1000)
+    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0, stop_dst=0)
     times = np.append(times, datetime.datetime.now() - begin_time)
     # except Exception as e:
     #     errs += 1
@@ -34,6 +35,11 @@ for i in range(r):
 print(times)
 print(times.mean())
 print(f"{errs} errors / {errs/r*100}%")
+
+pptr.ppTr(T, 4)
+plotting.drawTree(T)
+# pptr.run()
+# plt.show()
 
 save = input("Save? y/n ")
 save = True if save == "y" else False

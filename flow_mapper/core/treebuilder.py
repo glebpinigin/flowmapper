@@ -3,10 +3,10 @@ from .distributor.events import GeneralQueueHandler
 from .distributor.wavefronts import W
 from .distributor.spirals import NodeRegion
 from .distributor.spiraltree import SpiralTree, connectionsToWkt
-
+import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
-from .plotting import tdraw
+from .plotting import tdrawCurves
 
 def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_attrs=None, stop_dst=0):
     
@@ -19,7 +19,7 @@ def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_att
     else:
         never_activated = [NodeRegion(alpha=alpha, root=root, leaf=leaf) for leaf in leaves]
     if logshow > 0:
-        tdraw(never_activated)
+        tdrawCurves(never_activated)
         plt.show()
     
     if vol_attrs is not None:
@@ -38,11 +38,10 @@ def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_att
         # queue.delete(event)
         #print(len(queue))
         if logshow > 1:
-            tdraw(list(T.nodes)[1:])
+            tdrawCurves(list(T.nodes)[1:])
             plt.show()
         # if len(queue) == 6:
         #     break
-    connectionsToWkt(T)
     return T
 
 

@@ -4,11 +4,11 @@ from shapely.geometry import LineString, Point, MultiPoint
 import warnings
 
 def polar_logspiral(alpha, dst, ang, th, tp):
-    
     sign = lrsign(tp)
     phi = ang + sign*np.tan(alpha)*th
     r = dst*(np.exp(-th))
     return  phi, r
+
 
 def lrsign(key):
     assert key in ('right', 'left'), "must be 'right' or 'left'"
@@ -17,11 +17,28 @@ def lrsign(key):
     else:
         return -1
 
+
+def signlr(sign):
+    assert sign in (-1, 1), "must be 1 or -1"
+    if sign == -1:
+        return "left"
+    else:
+        return "right"
+
+
 def rect_logspiral(r, phi):
 
     x = r*np.cos(phi)
     y = r*np.sin(phi)
     return [x, y]
+
+
+def calcR(phi, params, tp):
+    dst = params[tp]["dst"]
+    ang = params[tp]["ang"]
+    alpha = params[tp]["alpha"]
+    sign = lrsign(tp)
+    return dst*np.exp(-(phi-ang) / np.tan(sign*alpha))
 
 
 def dst_bearing(a, b):
@@ -90,7 +107,7 @@ def intersectLogspirals(dst0, dst1, ang0, ang1, alpha):
     return (i_phi, i_r2)
 
 
-def intersect_curves(curve1, curve2, plotting=False, ax=None):
+def intersect_curves(curve1, curve2):
     '''
     return: {'curves': (curve1, curve2), 'position_type': ((xp, yp), "right"), 'dst': dst0, 'ang': ang0}
 
@@ -111,12 +128,12 @@ def intersect_curves(curve1, curve2, plotting=False, ax=None):
         intersection = intersectLogspirals(params_r["dst"], params_l["dst"], params_r["ang"], params_l["ang"], params_r["alpha"])
         if any(intersection) is float("nan"): continue
         # check where is intersection
-        if intersection[1] < params_r["r_domain"][0] and intersection[1] > params_r["r_domain"][1]:
+        if intersection[1] < params_r["r_domain"][0] and intersection[1] > params_r["r_domain"][-1]:
             r_out_key = True
         else:
             r_out_key = False
 
-        if intersection[1] < params_l["r_domain"][0] and intersection[1] > params_l["r_domain"][1]:
+        if intersection[1] < params_l["r_domain"][0] and intersection[1] > params_l["r_domain"][-1]:
             l_out_key = True
         else:
             l_out_key = False

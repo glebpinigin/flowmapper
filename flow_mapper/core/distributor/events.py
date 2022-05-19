@@ -100,10 +100,10 @@ class TerminalEvent:
                 mid_ang = nb.R.ang
                 new_r = self.R.dst
                 # unpack right spiral params from nb.R
-                alpha, dst, ang, _, _ = nb.R.params["right"].values()
+                alpha, dst, ang, _, _, _ = nb.R.params["right"].values()
                 new_phi_r = -np.log(new_r/dst)*np.tan(alpha) + ang
                 # unpack left spiral params from nb.R
-                alpha, dst, ang, _, _ = nb.R.params["left"].values()
+                alpha, dst, ang, _, _, _ = nb.R.params["left"].values()
                 new_phi_l = np.log(new_r/dst)*np.tan(alpha) + ang
                 q = (mid_ang - new_phi_l)/2
                 q1 = mid_ang - q

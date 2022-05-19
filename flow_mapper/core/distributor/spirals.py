@@ -33,7 +33,7 @@ class NodeRegion():
         sign = lrsign(tp)
         self.tp = tp
         alpha = self.params[tp]["alpha"]
-        phi_domain = self.params[tp]["phi_domain"]
+        th_domain = self.params[tp]["th_domain"]
         dst = self.dst
         ang = self.ang
 
@@ -42,12 +42,13 @@ class NodeRegion():
         elif ang-lowerlimit_phi > np.pi:
             ang = rad_magic(ang)
         thmin = (lowerlimit_phi - ang) / np.tan(sign*alpha)
-        th_domain = np.array([phi_domain[0], thmin])
-        phi_domain, r_domain = polar_logspiral(alpha, dst, ang, th_domain, tp)
+        th_domain = np.array([0, thmin])
+        phi_domain, r_domain = polar_logspiral(alpha, dst, self.ang, th_domain, tp) # SELF.ANG IS CRITICAL!!!
         self.params = {
             self.tp: {"alpha": alpha, 
                     "dst": dst, 
-                    "ang": ang,
+                    "ang": self.ang,
+                    "th_domain": th_domain,
                     "phi_domain": phi_domain,
                     "r_domain": r_domain}
         }
@@ -60,7 +61,7 @@ class NodeRegion():
         '''
         sign = lrsign(tp)
         alpha = self.params[tp]["alpha"]
-        phi_domain = self.params[tp]["phi_domain"]
+        th_domain = self.params[tp]["th_domain"]
         ang = self.ang
         dst = self.dst
         
@@ -69,11 +70,12 @@ class NodeRegion():
         elif self.ang-upperlimit_phi > np.pi:
             ang = rad_magic(self.ang)
         thmax = (upperlimit_phi - ang) / np.tan(sign*alpha)
-        th_domain = np.array([thmax, phi_domain[1]])
-        phi_domain, r_domain = polar_logspiral(alpha, dst, ang, th_domain, tp)
+        th_domain = np.array((thmax, np.pi*(1/np.tan(alpha))))
+        phi_domain, r_domain = polar_logspiral(alpha, dst, self.ang, th_domain, tp) # SELF.ANG IS CRITICAL!!!
         tp_params = {"alpha": alpha, 
                     "dst": dst, 
-                    "ang": ang,
+                    "ang": self.ang,
+                    "th_domain": th_domain,
                     "phi_domain": phi_domain,
                     "r_domain": r_domain
                     }
@@ -102,11 +104,12 @@ class NodeRegion():
 
 
     def _build_raw(self):
+        self.params = {}
         alpha = np.radians(self.deg_alpha)
-        th_domain = np.array([0, np.pi/np.tan(alpha)])
+        th_domain = np.array((0, np.pi*(1/np.tan(alpha))))
         phi_domain, r_domain = polar_logspiral(alpha, self.dst, self.ang, th_domain, "right")
-        params = {"alpha": alpha, "dst": self.dst, "ang": self.ang, "phi_domain": phi_domain, "r_domain": r_domain}
-        self.params = {
-            "right": params,
-            "left": params
-        }
+        params_r = {"alpha": alpha, "dst": self.dst, "ang": self.ang, "th_domain": th_domain, "phi_domain": phi_domain, "r_domain": r_domain}
+        self.params["right"] = params_r
+        phi_domain, r_domain = polar_logspiral(alpha, self.dst, self.ang, th_domain, "left")
+        params_l = {"alpha": alpha, "dst": self.dst, "ang": self.ang, "th_domain": th_domain, "phi_domain": phi_domain, "r_domain": r_domain}
+        self.params["left"] = params_l

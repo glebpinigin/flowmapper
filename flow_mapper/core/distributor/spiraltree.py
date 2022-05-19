@@ -38,7 +38,7 @@ class SpiralTree(nx.DiGraph):
         self.add_node(self.applyNdBias(far_R1, self.bias), R=far_R1)
         attr = {name: value for value, name in zip(far_R1.volumes, self.vol_attrs)}
         far_R2.collapseRegion(*collapse_args)
-        self.add_edge(self.Rs[close_R], self.Rs[far_R1], type="false-connection", **attr)
+        self.add_edge(self.Rs[close_R], self.Rs[far_R1], type="st-connection", **attr)
         attr = {name: value for value, name in zip(far_R2.volumes, self.vol_attrs)}
         self.add_edge(self.Rs[close_R], self.Rs[far_R2], type="false-connection", **attr)
         # nx.set_edge_attributes(self, {(self.root, close_R): list(close_R.volumes)}, name="volumes")

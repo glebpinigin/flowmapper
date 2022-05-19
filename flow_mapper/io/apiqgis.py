@@ -1,5 +1,6 @@
 from ..core.treebuilder import buildTree
 from ..core.distributor.spiraltree import connectionsToWkt, spiraltreeToPandas
+from ..core.drawer.pptr import ppTr
 from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsProject
 from qgis.PyQt.QtCore import QVariant
 from qgis import processing
@@ -40,7 +41,7 @@ def input(in_lyr, expression, vol_flds=None, alpha=25, stop_dst=0):
         volumes.append(onevolume)
 
     T = buildTree(leaves=leaves, bias=bias, alpha=alpha, vol_attrs=[vol_flds, volumes], stop_dst=stop_dst)
-    connectionsToWkt(T)
+    ppTr(T, 4)
     return T
 
 
