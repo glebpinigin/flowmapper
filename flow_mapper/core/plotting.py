@@ -58,16 +58,14 @@ def tplot(crds, leaf=None, root=None, tp=None, ax1=None, ax2=None, polar = True,
     return ax1, ax2
 
 
-def drawTree(T):
+def drawTree(T, geom_field="raw_geom"):
     fig = plt.figure(1, (8, 5))
     ax = fig.add_subplot()
-    for node1, node2, str in T.edges.data("Wkt"):
-        ls = wkt.loads(str)
-        ax.plot(*np.array(list(ls.coords)).T)
+    for node1, node2, geom in T.edges.data(geom_field):
+        ax.plot(*np.array(list(geom.coords)).T)
         ax.plot(*node2, "og")
     ax.set_aspect(1)
     return ax
-
 
 
 def drawCurves(curves, ax1=None, ax2=None, polar=True):
@@ -77,7 +75,6 @@ def drawCurves(curves, ax1=None, ax2=None, polar=True):
     ax2 = fig.add_subplot(222,polar=False) if ax2 is None else ax2
     
     for curve in curves:
-
         curve.plot(ax1=ax1, ax2=ax2, polar=polar)
     return ax1, ax2
 

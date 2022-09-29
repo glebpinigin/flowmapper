@@ -3,8 +3,7 @@ import numpy as np
 from scipy import optimize, interpolate
 import matplotlib.pyplot as plt
 import numpy as np
-from ..distributor import local_utils as lu
-from ..distributor.spirals import NodeRegion
+from flow_mapper.core.distributor import local_utils as lu
 from shapely.geometry import LineString
 
 
@@ -38,16 +37,16 @@ def computeBounds(pts):
     return bounds
 
 
-def ppTr(T: nx.DiGraph, ptnum=4):
+def ppTr(T: nx.DiGraph, ptnum=4, method="unif"):
     """Populate tree with points using scipy.optimize.minimize"""
+    assert method in ("unif", "log"), "Only 'unif' and 'log' methods available"
     for node1, node2, data in T.edges.data():
         if data["type"] == "root-connection":
             node1_crds = np.array(node1)
             leaf = np.array(node2)
             crds = (node1_crds, leaf)
             line = LineString(crds)
-            wkt = line.wkt
-            nx.set_edge_attributes(T, {(node1, node2): wkt}, name="Wkt")
+            nx.set_edge_attributes(T, {(node1, node2): line}, name="raw_geom")
         elif data["type"] in ("st-connection-right", "st-connection-left"):
             R = T.nodes[node2]["R"]
             tp = R.tp
@@ -58,27 +57,28 @@ def ppTr(T: nx.DiGraph, ptnum=4):
             alpha = R.params[tp]["alpha"]
             phimn, phimx = R.params[tp]["phi_domain"]
             phi = np.linspace(phimx, phimn, ptnum)
-            phi = np.append(phi, (sign, alpha, dst, ang))
-            bounds = computeBounds(phi)
-            # optimizing
-            res = optimize.minimize(dstSd, phi, bounds=bounds)
-            phi2 = res.x[:-4]
+            if method == "unif":
+                phi = np.append(phi, (sign, alpha, dst, ang))
+                bounds = computeBounds(phi)
+                # optimizing
+                res = optimize.minimize(dstSd, phi, bounds=bounds)
+                phi2 = res.x[:-4]
+            elif method == "log":
+                phi2 = phi
             r2 = lu.calcR(phi2, R.params, tp)
             # transfer to rectangular
             crds = lu.rect_logspiral(r2, phi2)
             crds = np.column_stack(crds)
             crds = crds + T.bias
             line = LineString(crds)
-            wkt = line.wkt
-            nx.set_edge_attributes(T, {(node1, node2): wkt}, name="Wkt")
+            nx.set_edge_attributes(T, {(node1, node2): line}, name="raw_geom")
         elif data["type"] == "false-connection":
             R = T.nodes[node2]["R"]
             crds = R.crds
             crds = np.column_stack(crds)
             crds = crds + T.bias
             line = LineString(crds)
-            wkt = line.wkt
-            nx.set_edge_attributes(T, {(node1, node2): wkt}, name="Wkt")
+            nx.set_edge_attributes(T, {(node1, node2): line}, name="raw_geom")
 
 
 def ptsToSpline(pts, ptnum=20, kind="cubic"):
@@ -96,3 +96,12 @@ def ptsToSpline(pts, ptnum=20, kind="cubic"):
     alpha = np.linspace(0, 1, ptnum)
     interpolator =  interpolate.interp1d(distance, pts, kind=kind, axis=0)
     return interpolator(alpha)
+
+
+def smoothTr(T: nx.DiGraph, ptnum=21, kind="cubic", inplace = False):
+    gs = list(map(lambda x: LineString(ptsToSpline(
+                    np.array(x[2]["raw_geom"].coords))),
+                    T.edges.data()))
+    vals = dict(zip(T.edges, gs))
+    nx.set_edge_attributes(T, vals, name="spline_geom")
+    return vals

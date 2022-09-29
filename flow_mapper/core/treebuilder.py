@@ -1,4 +1,3 @@
-from multiprocessing import connection
 from .distributor.events import GeneralQueueHandler
 from .distributor.wavefronts import W
 from .distributor.spirals import NodeRegion
