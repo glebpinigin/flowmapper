@@ -46,7 +46,7 @@ plotting.drawTree(T)
 # pptr.run()
 plt.show()
 
-thcktr.thckTr(T, ["amount", "count", "TotalFlow"], 1, 20, 5, 7)
+thcktr.thckTr(T, ["amount", "count"], 1, 20, 5, 7)
 for node1, node2, data in T.edges.data():
         print(data)
 save = input("Save? y/n ")

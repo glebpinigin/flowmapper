@@ -46,11 +46,6 @@ def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_att
             plt.show()
         # if len(queue) == 6:
         #     break
-    sum_vals = {}
-    for nd1, nd2, data in T.edges().data():
-        sum_val = {"TotalFlow": sum(list(map(lambda x: data[x], vol_attrs[0])))}
-        sum_vals[(nd1, nd2)] = sum_val
-    nx.set_edge_attributes(T, sum_vals)
     return T
 
 
