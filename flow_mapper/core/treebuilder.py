@@ -15,9 +15,13 @@ def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_att
     extent = [(stacked[0].min(), stacked[1].min()), (stacked[0].max(), stacked[1].max())] # (lowerleft), (upperright)
     #print(extent, "\n")
     if vol_attrs is not None:
-        never_activated = [NodeRegion(alpha=alpha, root=root, leaf=leaf, volumes=vols) for leaf, vols in zip(leaves, vol_attrs[1])]
+        vol_attrs[0].append("count")
+        for i in vol_attrs[1]:
+            i.append(1)
+        never_activated = [NodeRegion(alpha=alpha, root=root, leaf=zipped[0], volumes=zipped[1]) for zipped in zip(leaves, vol_attrs[1])]
     else:
         never_activated = [NodeRegion(alpha=alpha, root=root, leaf=leaf) for leaf in leaves]
+        vol_attrs = [["count"]]
     if logshow > 0:
         tdrawCurves(never_activated)
         plt.show()
@@ -42,6 +46,11 @@ def buildTree(root=(0, 0), leaves=None, alpha=15, logshow=0, bias=(0,0), vol_att
             plt.show()
         # if len(queue) == 6:
         #     break
+    sum_vals = {}
+    for nd1, nd2, data in T.edges().data():
+        sum_val = {"TotalFlow": sum(list(map(lambda x: data[x], vol_attrs[0])))}
+        sum_vals[(nd1, nd2)] = sum_val
+    nx.set_edge_attributes(T, sum_vals)
     return T
 
 

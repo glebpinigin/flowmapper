@@ -133,14 +133,16 @@ class TerminalEvent:
                 # need another point for splines
                 if new_phi < mid_ang:
                     new_phi_2 = new_phi + (mid_ang-new_phi)/2
-                    new_r_2 = calcR(new_phi_2, nb.R.params, "left")
+                    ntp = "left"
+                    new_r_2 = calcR(new_phi_2, nb.R.params, ntp)
                 else:
                     new_phi_2 = mid_ang + (new_phi-mid_ang)/2
-                    new_r_2 = calcR(new_phi_2, nb.R.params, "right")
+                    ntp = "right"
+                    new_r_2 = calcR(new_phi_2, nb.R.params, ntp)
                 
                 addtn = rect_logspiral(new_r_2, new_phi_2)
 
-                T.insertFalseNode(falseR, self.R, nb.R, collapse_args = (inter_crds, leaf, addtn))
+                T.insertFalseNode(falseR, self.R, nb.R, collapse_args = (ntp, inter_crds, leaf, addtn))
                 self.R.cropUpperPart(tp0, i_phi)
                 tp = TerminalEvent(falseR, T)
                 val = GeneralQueueData(tp)

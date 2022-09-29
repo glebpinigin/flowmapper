@@ -4,3 +4,5 @@ __pycache__
 flow_mapper/treebuilder/__pycache__
 figs
 *.code-workspace
+.vscode
+myproject.egg-info

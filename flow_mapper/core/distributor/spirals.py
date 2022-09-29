@@ -91,8 +91,8 @@ class NodeRegion():
             return self.dst
 
 
-    def collapseRegion(self, inter_crds, leaf, addtn):
-        self.tp = "right"
+    def collapseRegion(self, ntp, inter_crds, leaf, addtn):
+        self.tp = ntp
         x = []
         y = []
         for pt in (inter_crds, leaf, addtn, self.leaf):

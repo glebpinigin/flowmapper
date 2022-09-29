@@ -48,7 +48,7 @@ def ppTr(T: nx.DiGraph, ptnum=4):
             line = LineString(crds)
             wkt = line.wkt
             nx.set_edge_attributes(T, {(node1, node2): wkt}, name="Wkt")
-        elif data["type"] == "st-connection":
+        elif data["type"] in ("st-connection-right", "st-connection-left"):
             R = T.nodes[node2]["R"]
             tp = R.tp
             # get points in polar coordinates

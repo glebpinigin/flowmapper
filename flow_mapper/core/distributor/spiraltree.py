@@ -26,9 +26,10 @@ class SpiralTree(nx.DiGraph):
         self.add_node(self.applyNdBias(steiner_R, self.bias), R=steiner_R)
         self.add_edge(self.Rs["root"], self.Rs[steiner_R], type="root-connection")
         for leaf_R in (leaf1_R, leaf2_R):
-          self.remove_edge(self.Rs["root"], self.Rs[leaf_R])
-          attr = {name: value for value, name in zip(leaf_R.volumes, self.vol_attrs)}
-          self.add_edge(self.Rs[steiner_R], self.Rs[leaf_R], type="st-connection", **attr)
+            tp = leaf_R.tp
+            self.remove_edge(self.Rs["root"], self.Rs[leaf_R])
+            attr = {name: value for value, name in zip(leaf_R.volumes, self.vol_attrs)}
+            self.add_edge(self.Rs[steiner_R], self.Rs[leaf_R], type=f"st-connection-{tp}", **attr)
     
 
     def insertFalseNode(self, close_R, far_R1, far_R2, collapse_args):
@@ -38,9 +39,9 @@ class SpiralTree(nx.DiGraph):
         self.add_node(self.applyNdBias(far_R1, self.bias), R=far_R1)
         attr = {name: value for value, name in zip(far_R1.volumes, self.vol_attrs)}
         far_R2.collapseRegion(*collapse_args)
-        self.add_edge(self.Rs[close_R], self.Rs[far_R1], type="st-connection", **attr)
+        self.add_edge(self.Rs[close_R], self.Rs[far_R1], type=f"st-connection-{far_R1.tp}", **attr)
         attr = {name: value for value, name in zip(far_R2.volumes, self.vol_attrs)}
-        self.add_edge(self.Rs[close_R], self.Rs[far_R2], type="false-connection", **attr)
+        self.add_edge(self.Rs[close_R], self.Rs[far_R2], type=f"false-connection-{far_R2.tp}", **attr)
         # nx.set_edge_attributes(self, {(self.root, close_R): list(close_R.volumes)}, name="volumes")
 
 
