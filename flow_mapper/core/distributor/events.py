@@ -142,8 +142,8 @@ class TerminalEvent:
                 
                 addtn = rect_logspiral(new_r_2, new_phi_2)
 
-                T.insertFalseNode(falseR, self.R, nb.R, collapse_args = (ntp, inter_crds, leaf, addtn))
                 self.R.cropUpperPart(tp0, i_phi)
+                T.insertFalseNode(falseR, self.R, nb.R, collapse_args = (ntp, inter_crds, leaf, addtn))
                 tp = TerminalEvent(falseR, T)
                 val = GeneralQueueData(tp)
                 Q.insert(val)

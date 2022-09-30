@@ -72,7 +72,7 @@ def ppTr(T: nx.DiGraph, ptnum=4, method="unif"):
             crds = crds + T.bias
             line = LineString(crds)
             nx.set_edge_attributes(T, {(node1, node2): line}, name="raw_geom")
-        elif data["type"] == "false-connection":
+        elif data["type"] in ("false-connection-right", "false-connection-left"):
             R = T.nodes[node2]["R"]
             crds = R.crds
             crds = np.column_stack(crds)
