@@ -17,17 +17,18 @@ print("Imports succesfull\n")
 r = 1
 errs = 0
 for i in range(r):
-    leaves = getLeaf(2)
-    vls = [
-        ["amount"],
-        [[5], [3], [4], [1], [9]]
-    ]
+    leaves = getLeaf(8)
+    # vls = [
+    #     ["amount"],
+    #     [[5], [3], [4], [1], [9]]
+    # ]
     # leaves = list(filter(lambda x: x[0] > 0, leaves))
     #leaves.append((-25.11407890334805, -153.18910434475615))
     #leaves = [(-20, 5), (-21, -7)] 
     begin_time = datetime.datetime.now()
     # try:
-    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0, stop_dst=0, vol_attrs=vls)
+    # T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0, stop_dst=0, vol_attrs=vls)
+    T = tbldr.buildTree(leaves=leaves, alpha=35, logshow=0, stop_dst=0)
     times = np.append(times, datetime.datetime.now() - begin_time)
     # except Exception as e:
     #     errs += 1
