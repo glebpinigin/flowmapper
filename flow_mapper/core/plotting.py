@@ -58,12 +58,16 @@ def tplot(crds, leaf=None, root=None, tp=None, ax1=None, ax2=None, polar = True,
     return ax1, ax2
 
 
-def drawTree(T, geom_field="raw_geom"):
-    fig = plt.figure(1, (8, 5))
-    ax = fig.add_subplot()
+def drawTree(T, ax=None, geom_field="raw_geom", display_nodes=True, nodes_fmt='go', nodes_kwargs=None):
+    if ax is None:
+        fig = plt.figure(1, (8, 5))
+        ax = fig.add_subplot()
     for node1, node2, geom in T.edges.data(geom_field):
         ax.plot(*np.array(list(geom.coords)).T)
-        ax.plot(*node2, "og")
+    if display_nodes:
+        for node1, node2, geom in T.edges.data(geom_field):
+            nodes_kwargs = {} if nodes_kwargs is None else nodes_kwargs
+            ax.plot(*node2, nodes_fmt, **nodes_kwargs)
     ax.set_aspect(1)
     return ax
 

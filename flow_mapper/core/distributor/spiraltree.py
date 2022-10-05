@@ -5,7 +5,7 @@ from shapely.geometry import LineString
 
 
 class SpiralTree(nx.DiGraph):
-    
+    symbol_attrs = {"linewidth", "offset", "color"}
 
     def __init__(self, root, bias, vol_attrs=None):
         super().__init__()
@@ -53,6 +53,34 @@ class SpiralTree(nx.DiGraph):
             leaf = tuple(np.array(val.leaf) + bias)
             self.Rs[val] = leaf
         return leaf
+
+    def setSymbolProperty(self, property_name, value, attr_name_array=None):
+        # NB!!! symbol property can be mutable object
+        if property_name not in self.symbol_attrs:
+            raise ValueError(f"""Invalid symbol property name.
+                            Valid property names are {self.symbol_attrs}""")
+        if attr_name_array is None:
+            # setting default value for whole tree
+            setattr(self, '_' + property_name, value)
+        elif all(name in self.vol_attrs for name in attr_name_array):
+            nx.set_edge_attributes(self, value, name=property_name)
+        else:
+            raise ValueError(f"""Unknown attribute in {attr_name_array}.
+                            Valid attributes are {self.vol_attrs}""")
+    
+    def symbolProperty(self, property_name, attr_name_array=None):
+        if property_name not in self.symbol_attrs:
+            raise ValueError(f"""Invalid symbol property name.
+                            Valid property names are {self.symbol_attrs}""")
+        if attr_name_array is None:
+            return getattr(self, '_' + property_name)
+        elif attr_name_array == "all":
+            return self.edges.data(property_name)
+        elif all(name in self.vol_attrs for name in attr_name_array):
+            return self.edges.data(property_name)
+        else:
+            raise ValueError(f"""Unknown attribute in {attr_name_array}.
+                            Valid attributes are {self.vol_attrs}""")
 
 
 def connectionsToWkt(T: SpiralTree):

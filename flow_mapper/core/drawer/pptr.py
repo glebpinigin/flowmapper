@@ -98,10 +98,12 @@ def ptsToSpline(pts, ptnum=20, kind="cubic"):
     return interpolator(alpha)
 
 
-def smoothTr(T: nx.DiGraph, ptnum=21, kind="cubic", inplace = False):
+def smoothTr(T: nx.DiGraph, ptnum=21, kind="cubic", inplace = True, geom_field="raw_geom"):
     gs = list(map(lambda x: LineString(ptsToSpline(
-                    np.array(x[2]["raw_geom"].coords))),
+                    np.array(x[2][geom_field].coords), ptnum, kind)),
                     T.edges.data()))
     vals = dict(zip(T.edges, gs))
-    nx.set_edge_attributes(T, vals, name="spline_geom")
+    if inplace:
+        nx.set_edge_attributes(T, vals, name="spline_geom")
+        return None
     return vals
