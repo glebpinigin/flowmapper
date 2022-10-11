@@ -50,22 +50,27 @@ def input(in_lyr, expression, vol_flds=None, alpha=25, stop_dst=0):
     return T
 
 
-def output(T, namestring, vol_flds, proj):
+def output(T, namestring, vol_names, proj):
     pdtb = spiraltreeToPandas(T)
     out_lyr = QgsVectorLayer(f"LineString?crs={proj}", namestring, "memory")
     out_lyr.startEditing()
     pr = out_lyr.dataProvider()
-    pr.addAttributes([QgsField("type", QVariant.String)] + [QgsField(f"{name}", QVariant.Double) for name in vol_flds])
+    vol_attrs = [QgsField(f"{name}", QVariant.Double) for name in vol_names]
+    service_flds = ["type", "source", "target"]
+    service_attrs = [QgsField(f"{name}", QVariant.String) for name in service_flds]
+    flds = service_flds + vol_names # field names
+    attrs = service_attrs + vol_attrs # attributes
+    pr.addAttributes(attrs)
     out_lyr.updateFields()
 
+    features = []
     for index, row in pdtb.iterrows():
         fet = QgsFeature()
-        fet.setGeometry(QgsGeometry.fromWkt(str(row["Wkt"])))
-        attrs = [row["type"]]
-        for fld in vol_flds:
-            attrs.append(row[fld])
-        fet.setAttributes(attrs)
-        pr.addFeatures([fet])
+        fet.setGeometry(QgsGeometry.fromWkt(str(row["raw_geom"])))
+        values = [row[fld] for fld in flds]
+        fet.setAttributes(values)
+        features.append(fet)
+    pr.addFeatures(features)
     
     out_lyr.commitChanges()
     out_lyr.updateExtents()

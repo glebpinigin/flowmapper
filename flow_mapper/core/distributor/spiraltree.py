@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 from shapely import wkt
 from shapely.geometry import LineString
-
+import json
 
 class SpiralTree(nx.DiGraph):
     symbol_attrs = {"linewidth", "offset", "color"}
@@ -107,5 +107,6 @@ def connectionsToWkt(T: SpiralTree):
 
 def spiraltreeToPandas(T):
     pdtb = nx.to_pandas_edgelist(T)
-    pdtb["Wkt"] = pdtb["Wkt"].apply(wkt.loads)
+    for name in ["source", "target"]:
+        pdtb[name] = pdtb[name].apply(json.dumps)
     return pdtb
