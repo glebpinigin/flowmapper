@@ -1,14 +1,17 @@
 from ..core.treebuilder import buildTree
 from ..core.distributor.spiraltree import connectionsToWkt, spiraltreeToPandas
 from ..core.drawer.pptr import ppTr, ptsToSpline
+from ..core.drawer.thcktr import thckTr, nodeOffset
 from shapely import wkt
 from shapely.geometry import LineString
 import numpy as np
 
-from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsProject
-from qgis.core import qgsfunction
+from qgis.core import QgsVectorLayer, QgsField, QgsFeature, QgsGeometry, QgsVectorFileWriter, QgsProject, QgsRenderContext, QgsUnitTypes
+from qgis.core import qgsfunction, QgsPointXY, QgsLineString
 from qgis.PyQt.QtCore import QVariant
 from qgis import processing
+from qgis.utils import iface
+
 
 def do(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None, stop_dst=0):
     result = processing.run("native:reprojectlayer", {
@@ -99,4 +102,34 @@ def splineLine(ptsnum, feature, parent):
     new_line = LineString(pts)
     linestr = new_line.wkt
     geometry = QgsGeometry().fromWkt(linestr)
+    return geometry
+
+@qgsfunction(args='auto', group='Custom', usesGeometry=True, handlesnull=True)
+def drawTree(ptsnum, p_feature, attrs, unitname, feature, parent):
+    """ Returns geometry of tree that should be drawn """
+    if feature["type"] == "root-connection":
+        return feature.geometry()
+    # распаковка геометрии
+    pts = feature.geometry().asPolyline() # point to move
+    pt = pts[0]
+    backpt = p_feature.geometry().asPolyline()[-2] # backpt
+    # распаковка типа
+    type = feature["type"][-5:]
+    type = "left" if type == "-left" else "right"
+
+    width_pt = 0
+    width_back = 0
+    for attr in attrs:
+        width_pt += feature[f"{attr}_width"]
+        width_back += p_feature[f"{attr}_width"]
+    
+
+    set = iface.mapCanvas().mapSettings()
+    unit = QgsUnitTypes().decodeRenderUnit(unitname)[0]
+    width_pt = QgsRenderContext().fromMapSettings(set).convertToMapUnits(width_pt, unit)
+    width_back = QgsRenderContext().fromMapSettings(set).convertToMapUnits(width_back, unit)
+    lastpt = nodeOffset(pt, backpt, type, width_pt, width_back)
+    pts[0] = QgsPointXY(*lastpt)
+    pts = ptsToSpline(pts, ptsnum)
+    geometry = QgsGeometry(QgsLineString(pts))
     return geometry
