@@ -1,14 +1,14 @@
 from matplotlib import pyplot as plt
-from flow_mapper.core.drawer.thcktr import thckTr
-import flow_mapper.core.treebuilder as tbldr
-from flow_mapper.core import plotting
+from flowmapper.core.drawer.thcktr import thckTr
+import flowmapper.core.treebuilder as tbldr
+from flowmapper.core import plotting
 from expls import *
 import numpy as np
 import datetime
 import networkx as nx
 import momepy
 from shapely import wkt
-from flow_mapper.core.drawer import pptr, thcktr
+from flowmapper.core.drawer import pptr, thcktr
 
 times = np.array([])
 

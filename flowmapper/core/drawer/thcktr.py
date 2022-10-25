@@ -1,5 +1,5 @@
 import networkx as nx
-from flow_mapper.core.distributor import local_utils as lu
+from flowmapper.core.distributor import local_utils as lu
 import numpy as np
 import warnings
 

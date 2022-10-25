@@ -1,5 +1,3 @@
-from lib2to3.pytree import Node
-from urllib.parse import _SplitResultBase
 import numpy as np
 from .spiraltree import SpiralTree
 from .wavefronts import W, WData

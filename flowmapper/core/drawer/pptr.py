@@ -3,7 +3,7 @@ import numpy as np
 from scipy import optimize, interpolate
 import matplotlib.pyplot as plt
 import numpy as np
-from flow_mapper.core.distributor import local_utils as lu
+from flowmapper.core.distributor import local_utils as lu
 from shapely.geometry import LineString
 
 
