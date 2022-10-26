@@ -13,19 +13,19 @@ from qgis import processing
 from qgis.utils import iface
 
 
-def do(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None, stop_dst=0):
+def flowTreeBuildAction(namestring, lyr, expr, vol_flds=None, alpha=25, proj=None, stop_dst=0):
     result = processing.run("native:reprojectlayer", {
         "INPUT": lyr,
         "TARGET_CRS": proj,
         "OUTPUT": 'TEMPORARY_OUTPUT'
     })
     lyr = result['OUTPUT']
-    T = input(lyr, expr, vol_flds, alpha, stop_dst)
-    out_lyr = output(T, namestring, vol_flds, proj)
+    T = _input(lyr, expr, vol_flds, alpha, stop_dst)
+    out_lyr = _output(T, namestring, vol_flds, proj)
     return out_lyr
 
 
-def input(in_lyr, expression, vol_flds=None, alpha=25, stop_dst=0):
+def _input(in_lyr, expression, vol_flds=None, alpha=25, stop_dst=0):
     in_lyr.selectByExpression(expression, QgsVectorLayer.SetSelection)
     root = in_lyr.selectedFeatures()[0]
     rootpt = root.geometry().asPoint()
@@ -53,7 +53,7 @@ def input(in_lyr, expression, vol_flds=None, alpha=25, stop_dst=0):
     return T
 
 
-def output(T, namestring, vol_names, proj):
+def _output(T, namestring, vol_names, proj):
     pdtb = spiraltreeToPandas(T)
     out_lyr = QgsVectorLayer(f"LineString?crs={proj}", namestring, "memory")
     out_lyr.startEditing()
@@ -92,7 +92,7 @@ def write(out_lyr, path):
         print(error)
 
 
-@qgsfunction(args='auto', group='Custom', usesGeometry=True)
+@qgsfunction(args='auto', group='FlowMapper', usesGeometry=True)
 def splineLine(ptsnum, feature, parent):
     """ Returns geometry interpolated with spline """
     linestr = feature.geometry().asWkt()
@@ -104,7 +104,7 @@ def splineLine(ptsnum, feature, parent):
     geometry = QgsGeometry().fromWkt(linestr)
     return geometry
 
-@qgsfunction(args='auto', group='Custom', usesGeometry=True, handlesnull=True)
+@qgsfunction(args='auto', group='FlowMapper', usesGeometry=True, handlesnull=True)
 def drawTree(ptsnum, p_feature, attrs, unitname, feature, parent):
     """ Returns geometry of tree that should be drawn """
     if feature["type"] == "root-connection":

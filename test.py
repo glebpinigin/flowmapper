@@ -1,19 +1,14 @@
 from matplotlib import pyplot as plt
-from flowmapper.core.drawer.thcktr import thckTr
+import numpy as np
+import datetime
+
 import flowmapper.core.treebuilder as tbldr
 from flowmapper.core import plotting
 from expls import *
-import numpy as np
-import datetime
-import networkx as nx
-import momepy
-from shapely import wkt
 from flowmapper.core.drawer import pptr, thcktr
 
 times = np.array([])
 
-import datetime
-print("Imports succesfull\n")
 r = 1
 errs = 0
 for i in range(r):
@@ -42,15 +37,8 @@ for i in range(r):
     plotting.drawTree(T, geom_field="spline_geom")
     plt.clf()
 
+    print(f"\rprogress {i} out of {r}", end = "\r")
+
 print(times)
 print(times.mean())
 print(f"{errs} errors / {errs/r*100}%")
-
-# save = input("Save? y/n ")
-# save = True if save == "y" else False
-# if save:
-#     savename = input("savename? ")
-#     lines = momepy.nx_to_gdf(T, points=False)
-#     lines['Wkt'] = lines['Wkt'].apply(wkt.loads)
-#     lines.set_geometry(col='Wkt', inplace=True)
-#     lines.to_file(f"../shape/{savename}.shp")
