@@ -1,8 +1,6 @@
 *.ipynb
 nothing.py
 __pycache__
-flowmapper/treebuilder/__pycache__
-figs
 *.code-workspace
 .vscode
 myproject.egg-info
