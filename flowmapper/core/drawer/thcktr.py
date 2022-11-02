@@ -4,8 +4,9 @@ import numpy as np
 import warnings
 
 # шкалирование
-def linScale(x, frommin, frommax, tomin, tomax):
-    # TODO: add soft zero scaling
+def linScale(x, frommin, frommax, tomin, tomax, soft = True):
+    if x == 0 and soft:
+        return 0
     return (tomax-tomin)*(x-frommin)/(frommax-frommin) + tomin
 
 # расчёт ширин в таблицу атрибутов
