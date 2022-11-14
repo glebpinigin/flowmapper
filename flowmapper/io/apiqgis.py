@@ -45,7 +45,8 @@ def _input(in_lyr, expression, vol_flds=None, alpha=25, stop_dst=0, geom_n=4):
         leaves.append((x, y))
         onevolume = []
         for fld in vol_flds:
-            onevolume.append(feature[fld])
+            cval = feature[fld] if not feature[fld] == QVariant() else 0
+            onevolume.append(cval)
         volumes.append(onevolume)
 
     T = buildTree(leaves=leaves, bias=bias, alpha=alpha, vol_attrs=[vol_flds, volumes], stop_dst=stop_dst)
